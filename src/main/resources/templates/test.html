@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+현재 번호: <h1 th:text="${pageNum }"></h1>
+
+
+
+<a th:if="${pageNum != maxPageNum}" th:href="@{/test(pageNum=${pageNum + 1})}">다음 페이지</a>
+<a th:if="${pageNum > 0}" th:href="@{/test(pageNum =${pageNum  - 1})}">이전 페이지</a>
+</body>
+</html>
