@@ -1,5 +1,7 @@
 package com.kbd.PAB;
 
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,8 +20,20 @@ public class MainController {
         return "test";
     }
 
-    @RequestMapping("/test2")
-    public String test2(Model model) {
-        return "test2";
+    @RequestMapping("/index")
+    public String index() {
+        return "index";
     }
+
+
+    @Autowired
+    private PartCategoryService partCategoryService;
+
+
+    @RequestMapping("/test3")
+    public String test3(Model model) {
+        model.addAttribute("categorys",partCategoryService.getCategory());
+        return "test3";
+    }
+
 }

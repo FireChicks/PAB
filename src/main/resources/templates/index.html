@@ -6,7 +6,27 @@
 </head>
 <body>
 hello world
-<h1 th:text="${number}"></h1>번째 시도
-<button onclick="location.href='/test2';">이동</button>
+<script>
+   const cpuCores = navigator.hardwareConcurrency;
+    console.log(cpuCores);
+
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    const gpuInfo = gl.getExtension('WEBGL_debug_renderer_info');
+    const gpuVendor = gl.getParameter(gpuInfo.UNMASKED_VENDOR_WEBGL);
+    const gpuRenderer = gl.getParameter(gpuInfo.UNMASKED_RENDERER_WEBGL);
+
+    console.log(gpuInfo);
+    console.log(gpuVendor);
+    console.log(gpuRenderer);
+
+    if ('deviceMemory' in navigator) {
+     console.log(`Available memory: ${navigator.deviceMemory}GB`);
+    } else {
+         console.log('Memory information not available.');
+    }
+
+
+</script>
 </body>
 </html>
