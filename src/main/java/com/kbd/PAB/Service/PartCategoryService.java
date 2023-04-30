@@ -1,5 +1,7 @@
-package com.kbd.PAB;
+package com.kbd.PAB.Service;
 
+import com.kbd.PAB.Repository.PartCategoryRepository;
+import com.kbd.PAB.VO.PartCategory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,8 @@ public class PartCategoryService {
     public List<PartCategory> getCategory() {
         return partCategoryRepository.findAll();
     }
+
+
 
 
 }

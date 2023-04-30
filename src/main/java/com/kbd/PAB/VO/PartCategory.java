@@ -1,4 +1,4 @@
-package com.kbd.PAB;
+package com.kbd.PAB.VO;
 
 import jakarta.persistence.*;
 
