@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class GpuService {
@@ -21,6 +22,18 @@ public class GpuService {
     public void insertCPU(ArrayList<GpuVO> gpuVOList) {
         gpuRepository.saveAll(gpuVOList);
     }
+
+    public List<GpuVO> getAllGpus(){ return  gpuRepository.findAll();}
+
+    public List<GpuVO> getCpuVOSByBrandName(String cpuBrand){
+        return  gpuRepository.findbyBrandName(cpuBrand);
+    }
+
+
+    public List<String> getDistinctBrand() {
+        return gpuRepository.findDistinctBrand();
+    }
+
 
     public void insertAmazonImgLink() throws IOException {
         ArrayList<GpuVO> gpuVOS = new ArrayList<>();

@@ -82,6 +82,11 @@ public class CpuInfoCrawlingService {
                 tempString.add(element.getText().trim());
             }
 
+            WebElement colorImages = driver.findElement(By.xpath("//*[@id=\"landingImage\"]"));
+
+            // colorImages 값을 추출합니다.
+            tempString.add(colorImages.getAttribute("src"));
+
             tempString.removeAll(Arrays.asList("", null));
 
         } catch (Exception e) {

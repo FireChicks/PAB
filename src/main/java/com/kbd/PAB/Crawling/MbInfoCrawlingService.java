@@ -75,12 +75,17 @@ public class MbInfoCrawlingService {
                 tempString.add(element.getText());
             }
 
+            WebElement colorImages = driver.findElement(By.xpath("//*[@id=\"landingImage\"]"));
+            tempString.add(colorImages.getAttribute("src"));
+
             // 데이터 수집할 요소 XPath 설정
             elements = driver.findElements(By.xpath("//ul[@class='a-unordered-list a-vertical a-spacing-mini']//li//span[@class='a-list-item']"));
 
             for (WebElement element : elements) {
                 tempString.add(element.getText().trim());
             }
+
+
 
             tempString.removeAll(Arrays.asList("", null));
 

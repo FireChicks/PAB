@@ -1,6 +1,6 @@
 package com.kbd.PAB.Repository;
 
-import com.kbd.PAB.VO.MbVO;
+import com.kbd.PAB.VO.StorageVO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,17 +9,15 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface MbRepository extends JpaRepository <MbVO, Integer> {
+public interface StoRepository extends JpaRepository <StorageVO, Integer> {
 
-    @Query("SELECT m FROM MbVO m WHERE m.brand = :brandName")
-    List<MbVO> findbyBrandName(@Param("brandName") String brandName);
+    @Query("SELECT c FROM storages c WHERE c.brand = :Brand")
+    List<StorageVO> findbyBrandName(@Param("Brand") String Brand);
 
-
-    @Query("SELECT DISTINCT brand FROM MbVO")
+    @Query("SELECT DISTINCT brand FROM storages")
     List<String> findDistinctBrand();
 
-    @Query("SELECT DISTINCT mb_cpu_socket FROM MbVO")
+    @Query("SELECT DISTINCT stoType FROM storages")
     List<String> findDistinctSocket();
-
 
 }

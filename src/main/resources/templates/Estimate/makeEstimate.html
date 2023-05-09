@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/carousel/">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js" integrity="sha384-zYPOMqeu1DAVkHiLqWBUTcbYfZ8osu1Nd6Z89ify25QV9guujx43ITvfi12/QExE" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js" integrity="sha384-Y4oOpwW3duJdCWv5ly8SCFYWqFDsfob/3GkgExXKV4idmbt98QcxXYs9UoXAB7BZ" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<header data-bs-theme="dark" th:replace="~{mainNav.html :: nav}"></header>
+<div class="container">
+    <div class="row vh-100 justify-content-center align-items-center">
+        <div class="col-md-12">
+            <h1 class="text-center">견적</h1>
+            <table class="table table-striped table-hover">
+                <tr>
+                    <th>항목</th>
+                    <th>내용</th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <td>CPU</td>
+                    <td th:text="${session.cpuName == null or session.cpuName == '' ? '부품 정보 없음' : session.cpuName}"></td>
+                    <td>
+                        <button type="button" class="btn btn-primary"
+                                th:text="${session.cpuName == null or session.cpuName == '' ? '추가' : '수정'}"
+                                onclick="location.href='/estimate/cpuParts'">
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Mainboard</td>
+                    <td th:text="${session.mainBoard == null or session.mainBoard == '' ? '부품 정보 없음' : session.mainBoard}"></td>
+                    <td>
+                        <button type="button" class="btn btn-primary"
+                                th:text="${session.mainBoard == null or session.mainBoard == '' ? '추가' : '수정'}"
+                                onclick="location.href='/estimate/mbParts'">
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>RAM</td>
+                    <td th:text="${session.ram == null or session.ram == '' ? '부품 정보 없음' : session.ram}"></td>
+                    <td>
+                        <button type="button" class="btn btn-primary"
+                                th:text="${session.ram == null or session.ram == '' ? '추가' : '수정'}"
+                                onclick="location.href='/estimate/ramParts'">
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Storage</td>
+                    <td th:text="${session.storage == null or session.storage == '' ? '부품 정보 없음' : session.storage}"></td>
+                    <td>
+                        <button type="button" class="btn btn-primary"
+                                th:text="${session.storage == null or session.storage == '' ? '추가' : '수정'}"
+                                onclick="location.href='/estimate/stroageParts'">
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Power</td>
+                    <td th:text="${session.power == null or session.power == '' ? '부품 정보 없음' : session.power}"></td>
+                    <td>
+                        <button type="button" class="btn btn-primary"
+                                th:text="${session.power == null or session.power == '' ? '추가' : '수정'}"
+                                onclick="location.href='/estimate/powerParts'">
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>GPU</td>
+                    <td th:text="${session.gpu == null or session.gpu == '' ? '부품 정보 없음' : session.gpu}"></td>
+                    <td>
+                        <button type="button" class="btn btn-primary"
+                                th:text="${session.gpu == null or session.gpu == '' ? '추가' : '수정'}"
+                                onclick="location.href='/estimate/gpuParts'">
+                        </button>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

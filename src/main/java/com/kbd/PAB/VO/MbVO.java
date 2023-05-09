@@ -18,8 +18,8 @@ public class MbVO {
     @Column(name = "brand", nullable = false, columnDefinition = "VARCHAR(100) COMMENT '제조사'")
     private String brand;
 
-    @Column(name = "mb_cpu_socket", nullable = false, columnDefinition = "VARCHAR(100) COMMENT 'CPU 소켓'")
-    private String mbCpuSocket;
+    @Column(name="mb_cpu_socket", nullable=false, columnDefinition="VARCHAR(100) COMMENT 'CPU 소켓'")
+    private String mb_cpu_socket;
 
     @Column(name = "mb_mem_gen", nullable = false, columnDefinition = "VARCHAR(100) COMMENT '메모리 세대'")
     private String mbMemGen;
@@ -57,12 +57,12 @@ public class MbVO {
         this.brand = brand;
     }
 
-    public String getMbCpuSocket() {
-        return mbCpuSocket;
+    public String getMb_cpu_socket() {
+        return mb_cpu_socket;
     }
 
-    public void setMbCpuSocket(String mbCpuSocket) {
-        this.mbCpuSocket = mbCpuSocket;
+    public void setMb_cpu_socket(String mb_cpu_socket) {
+        this.mb_cpu_socket = mb_cpu_socket;
     }
 
     public String getMbMemGen() {
@@ -107,7 +107,7 @@ public class MbVO {
         this.amazonLink = mbInfos.get(mbInfosIndex++);
         this.mbName = mbInfos.get(mbInfosIndex++);
         this.brand = mbInfos.get(mbInfosIndex++);
-        this.mbCpuSocket = mbInfos.get(mbInfosIndex++);
+        this.mb_cpu_socket = mbInfos.get(mbInfosIndex++);
         mbInfosIndex++;
         this.mbMemGen = mbInfos.get(mbInfosIndex++);
         for (int i = mbInfosIndex; i < mbInfos.size(); i++) { //나머지 문자열들은 CPU 부가정보들

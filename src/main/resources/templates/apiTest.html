@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="UTF-8">
+  <title>Naver Shop API Result</title>
+</head>
+<body>
+<h1>Naver Shop API Result</h1>
+<button onclick="getData()">데이터 가져오기</button>
+<table>
+  <thead>
+  <tr>
+    <th>상품명</th>
+    <th>최저가</th>
+    <th>최고가</th>
+    <th>링크</th>
+  </tr>
+  </thead>
+  <tbody id="tableBody">
+  <tr th:each="item : ${items}">
+    <td th:text="${item.title}"></td>
+    <td th:text="${item.lprice}"></td>
+    <td th:text="${item.hprice}"></td>
+    <td><a th:href="${item.link}" target="_blank" th:text="${item.link}"></a></td>
+  </tr>
+  </tbody>
+</table>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+        function getData() {
+            axios.get('/search/shop', {params: {query: 'AMD Ryzen™ 9 7900X'}})
+                .then(response => {
+                    let items = response.data.items;
+                    let tableBody = document.getElementById('tableBody');
+                    tableBody.innerHTML = '';
+                    items.forEach(item => {
+                        let tdLprice = document.createElement('td');
+                        tdLprice.innerText = item.lprice;
+                        let tdHprice = document.createElement('td');
+                        tdHprice.innerText = item.hprice;
+                        let tdLink = document.createElement('td');
+                        let a = document.createElement('a');
+                        a.href = item.link;
+                        a.target = '_blank';
+                        a.innerText = item.link;
+                    });
+                })
+                .catch(error => console.error(error));
+        }
+    </script>
+</body>
+</html>

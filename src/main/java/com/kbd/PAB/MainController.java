@@ -89,7 +89,7 @@ public class MainController {
             System.out.println(i + "번째 정보 추가 완료");
         }
 
-        mbService.insertCPU(mbVos);
+        mbService.insertMb(mbVos);
         return "mbc";
     }
 
@@ -189,9 +189,49 @@ public class MainController {
         powService.insertCPU(powVos);
         return "mbc";
     }
+
+    @Autowired
+    StoService stoService;
+
+    @RequestMapping("/stoc")
+    public String stoc(Model model) throws Exception {
+        ArrayList<String> urls = new ArrayList<String>(Arrays.asList("https://www.amazon.com/-/ko/dp/B08QBMD6P4/ref=sr_1_3?crid=1H7QAO9LP0EWD&keywords=ssd&qid=1683369081&sprefix=ssd%2Caps%2C253&sr=8-3&th=1",
+                "https://www.amazon.com/-/ko/dp/B08RK2SR23/ref=sr_1_8?crid=1H7QAO9LP0EWD&keywords=ssd&qid=1683369104&sprefix=ssd%2Caps%2C253&sr=8-8",
+                "https://www.amazon.com/-/ko/dp/B089C6LZ42/ref=sr_1_11?crid=1H7QAO9LP0EWD&keywords=ssd&qid=1683369104&sprefix=ssd%2Caps%2C253&sr=8-11",
+                "https://www.amazon.com/-/ko/dp/B07MFZY2F2/ref=sr_1_13?crid=1H7QAO9LP0EWD&keywords=ssd&qid=1683369104&sprefix=ssd%2Caps%2C253&sr=8-13",
+                "https://www.amazon.com/-/ko/dp/B08V83JZH4/ref=sr_1_15?crid=1H7QAO9LP0EWD&keywords=ssd&qid=1683369104&sprefix=ssd%2Caps%2C253&sr=8-15",
+                "https://www.amazon.com/-/ko/dp/B0BHJJ9Y77/ref=sr_1_25?crid=1H7QAO9LP0EWD&keywords=ssd&qid=1683369138&sprefix=ssd%2Caps%2C253&sr=8-25",
+                "https://www.amazon.com/-/ko/dp/B08T1QQZ1T/ref=sr_1_35?crid=1H7QAO9LP0EWD&keywords=ssd&qid=1683369157&sprefix=ssd%2Caps%2C253&sr=8-35",
+                "https://www.amazon.com/-/ko/dp/B087QTVCHH/ref=sr_1_4?crid=1JGM53OZPI3OC&keywords=hdd&qid=1683369168&sprefix=h%2Caps%2C243&sr=8-4",
+                "https://www.amazon.com/-/ko/dp/B09NHV3CK9/ref=sr_1_5?crid=1JGM53OZPI3OC&keywords=hdd&qid=1683369176&sprefix=h%2Caps%2C243&sr=8-5",
+                "https://www.amazon.com/-/ko/dp/B07T63FDJQ/ref=sr_1_9?crid=1JGM53OZPI3OC&keywords=hdd&qid=1683369176&sprefix=h%2Caps%2C243&sr=8-9",
+                "https://www.amazon.com/dp/B09TQ6VNB4/ref=sr_1_1_sspa?crid=1UWJDBSBTZ06I&keywords=hdd+3.5&qid=1683369244&sprefix=hdd+3%2Caps%2C248&sr=8-1-spons&psc=1&spLa=ZW5jcnlwdGVkUXVhbGlmaWVyPUEzSzhOS01USDNDRzYzJmVuY3J5cHRlZElkPUEwMzkyNTk2NlNKRTNMSThLM0xSJmVuY3J5cHRlZEFkSWQ9QTAzMTQwODIxNlREWDVWMUhZNlVBJndpZGdldE5hbWU9c3BfYXRmJmFjdGlvbj1jbGlja1JlZGlyZWN0JmRvTm90TG9nQ2xpY2s9dHJ1ZQ==",
+                "https://www.amazon.com/-/ko/dp/B075CPT95M/ref=sr_1_119?crid=1UWJDBSBTZ06I&keywords=hdd+3.5&qid=1683369291&sprefix=hdd+3%2Caps%2C248&sr=8-119",
+                "https://www.amazon.com/-/ko/dp/B086WQTLHD/ref=sr_1_51?crid=1UWJDBSBTZ06I&keywords=hdd+3.5&qid=1683369309&sprefix=hdd+3%2Caps%2C248&sr=8-51",
+                "https://www.amazon.com/dp/B01LXF9W9C/ref=sspa_dk_detail_3?psc=1&pd_rd_i=B01LXF9W9C&pd_rd_w=jfvMu&content-id=amzn1.sym.08ba9b95-1385-44b0-b652-c46acdff309c&pf_rd_p=08ba9b95-1385-44b0-b652-c46acdff309c&pf_rd_r=26XCA5KKM7TZD6BV6WM3&pd_rd_wg=0fIwD&pd_rd_r=5291eef1-70af-4c15-a655-eab9505e24c5&s=pc&sp_csd=d2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM&smid=A1GFVZFNF73Y6J&spLa=ZW5jcnlwdGVkUXVhbGlmaWVyPUEzRlExSUhRS08xVkczJmVuY3J5cHRlZElkPUEwMjgxNjYyMVNaMDE2SEhaOUgyUCZlbmNyeXB0ZWRBZElkPUExMDA1NzA0MjA2UzU1UElKNVUxTCZ3aWRnZXROYW1lPXNwX2RldGFpbF90aGVtYXRpYyZhY3Rpb249Y2xpY2tSZWRpcmVjdCZkb05vdExvZ0NsaWNrPXRydWU=",
+                "https://www.amazon.com/dp/B01LXF9W9C/ref=sspa_dk_detail_3?psc=1&pd_rd_i=B01LXF9W9C&pd_rd_w=jfvMu&content-id=amzn1.sym.08ba9b95-1385-44b0-b652-c46acdff309c&pf_rd_p=08ba9b95-1385-44b0-b652-c46acdff309c&pf_rd_r=26XCA5KKM7TZD6BV6WM3&pd_rd_wg=0fIwD&pd_rd_r=5291eef1-70af-4c15-a655-eab9505e24c5&s=pc&sp_csd=d2lkZ2V0TmFtZT1zcF9kZXRhaWxfdGhlbWF0aWM&smid=A1GFVZFNF73Y6J&spLa=ZW5jcnlwdGVkUXVhbGlmaWVyPUEzRlExSUhRS08xVkczJmVuY3J5cHRlZElkPUEwMjgxNjYyMVNaMDE2SEhaOUgyUCZlbmNyeXB0ZWRBZElkPUExMDA1NzA0MjA2UzU1UElKNVUxTCZ3aWRnZXROYW1lPXNwX2RldGFpbF90aGVtYXRpYyZhY3Rpb249Y2xpY2tSZWRpcmVjdCZkb05vdExvZ0NsaWNrPXRydWU=")); //url에 추가하기
+
+        ArrayList<StorageVO> stoVos = new ArrayList<StorageVO>();
+        for(int i=0; i < urls.size(); i++) {
+            System.out.println(i + "번째 url 크롤링중");
+            MbInfoCrawlingService crawlingService = new MbInfoCrawlingService(urls.get(i));
+            ArrayList<String> temp = crawlingService.getInfoFromWebPage();
+            try { //캡챠 발생시 계속 진행
+                StorageVO powVO = new StorageVO(temp);
+                stoVos.add(powVO);
+            } catch(IndexOutOfBoundsException e) {
+                continue;
+            }
+            System.out.println(i + "번째 정보 추가 완료");
+        }
+
+        stoService.insertSTO(stoVos);
+        return "mbc";
+    }
+
     @RequestMapping("/crTest")
     public String crTest(Model model) throws Exception {
-            MbInfoCrawlingService crawlingService = new MbInfoCrawlingService("https://www.amazon.com/-/ko/dp/B088SSX883/ref=sr_1_5?c=ts&keywords=computer%2Bpower%2Bsupply&qid=1681137322&s=pc&sr=1-5&ts_id=1161760&th=1");
+            MbInfoCrawlingService crawlingService = new MbInfoCrawlingService("https://www.amazon.com/-/ko/dp/B07H2RR55Q/ref=sr_1_3?crid=1XV4H8EN6Y3Y9&keywords=hdd&qid=1683368608&sprefix=h%2Caps%2C391&sr=8-3&th=1");
             ArrayList<String> temp = crawlingService.getInfoFromWebPage();
             model.addAttribute("info", temp);
         return "mbc";
@@ -203,24 +243,32 @@ public class MainController {
         return "mbc";
     }
 
-    @RequestMapping("/newEstimate")
-    public String newEstimate() {
-        return "newEstimate";
+
+
+    @RequestMapping("/index")
+    public String mainPage() {
+        return "index";
     }
 
-    @RequestMapping("/testAPI")
-    public String testAPI() {
-        return "testAPI";
+    @RequestMapping("/login")
+    public String loginPage() {
+        return "login";
+    }
+
+    @RequestMapping("/join")
+    public String joinPage() {
+        return "join";
     }
 
     @Autowired
     private PartCategoryService partCategoryService;
 
 
-    @RequestMapping("/test3")
-    public String test3(Model model) {
-        model.addAttribute("categorys",partCategoryService.getCategory());
-        return "test3";
+    @RequestMapping("/testAPI")
+    public String test3() {
+        return "apiTest";
     }
+
+
 
 }

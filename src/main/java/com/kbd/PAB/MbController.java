@@ -1,8 +1,9 @@
 package com.kbd.PAB;
 
 
-import com.kbd.PAB.Service.*;
+import com.kbd.PAB.Service.MbService;
 import com.kbd.PAB.VO.CpuVO;
+import com.kbd.PAB.VO.MbVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,32 +13,32 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 
-
 @RestController
-@RequestMapping("/cpu")
-public class CpuController {
+@RequestMapping("/mb")
+public class MbController {
 
     @Autowired
-    private CpuService cpuService;
+    private MbService mbService;
 
     @GetMapping
-    public List<CpuVO> getAllCpus(@RequestParam(name = "page", defaultValue = "1")int pageNumber) {
-        return cpuService.getAllCpus();
+    public List<MbVO> getAllCpus(@RequestParam(name = "page", defaultValue = "1")int pageNumber) {
+        return mbService.getAllMbs();
     }
 
     @GetMapping("/byBrand")
-    public List<CpuVO> getByBrandNameCpus(@RequestParam(value = "brand", defaultValue = "AMD")String cpuBrand) {
-        return cpuService.getCpuVOSByBrandName(cpuBrand);
+    public List<MbVO> getByBrandNameCpus(@RequestParam(value = "brand", defaultValue = "ASUS")String cpuBrand) {
+        List<MbVO> mbVOs = mbService.getMbVOSByBrandName(cpuBrand);
+        return mbVOs;
     }
 
     @GetMapping("/brandCategory")
     public List<String> getBrandCategory() {
-        return cpuService.getDistinctBrand();
+        return mbService.getDistinctBrand();
     }
 
     @GetMapping("/socketCategory")
     public List<String> getSocketCategory() {
-        return cpuService.getDistinctSocket();
+        return mbService.getDistinctSocket();
     }
 
 }

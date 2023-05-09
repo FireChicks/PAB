@@ -1,13 +1,14 @@
 var checkedBrandCategory;
 var checkedSocketCategory;
-let cpuInfos = [];
+let gpuInfos = [];
 const pageSize = 10;
+const MAX_NAME_BUNDLE = 8;
 
 // 서버로부터 CPU 정보를 가Fuwbdiw져와 테이블에 추가하는 함수
-function fetchAndAddCPUsToTable(page = 1, filter = '') {
-  axios.get(`/cpu`)
+function fetchAndAddGPUsToTable(page = 1, filter = '') {
+  axios.get(`/gpu`)
     .then(function (response) {
-      cpuInfos = response.data;
+      gpuInfos = response.data;
       paginate(1,'');
     })
     .catch(function (error) {
@@ -15,41 +16,45 @@ function fetchAndAddCPUsToTable(page = 1, filter = '') {
     });
 }
 
-function inputToTableBody(row, tableBody, info){
-        if(info.cpuName.length <= 50) {
-            row.insertCell(0).innerHTML = `<a href="${info.amazon_Link}">${info.cpuName}</a>`;
-        } else{
-            row.insertCell(0).innerHTML = `<a href="${info.amazon_Link}">${info.cpuName.substring(0, 50)+'...'}</a>`;
-        }
-        row.insertCell(1).innerHTML = info.brand;
-        row.insertCell(2).innerHTML = info.cpuModel;
-        row.insertCell(3).innerHTML = info.cpuSpeed;
-        row.insertCell(4).innerHTML = info.cpu_socket;
-        row.insertCell(5).innerHTML = '미구현';
-        row.insertCell(6).innerHTML = `<a href="${info.amazon_Link}"><img src="${info.amazon_img_link}" width="150" height="150"></a>`;
-        row.insertCell(7).innerHTML = '<button type="button" class="btn btn-primary">추가</button>';
+async function inputToTableBody(row, tableBody, info) {
+  if (info.gpuName.length <= 50) {
+    row.insertCell(0).innerHTML = `<a href="${info.amazon_Link}">${info.gpuName}</a>`;
+  } else {
+    row.insertCell(0).innerHTML = `<a href="${info.amazon_Link}">${info.gpuName.substring(0, 50) + '...'}</a>`;
+  }
+  row.insertCell(1).innerHTML = info.brand;
+  row.insertCell(2).innerHTML = info.gpuModel;
+  row.insertCell(3).innerHTML = info.gpuClock;
+  row.insertCell(4).innerHTML = info.gpuInfo.substring(0, 50) + '...';
+
+  const priceCell = row.insertCell(5);
+  priceCell.innerHTML = '로딩 중...'; // 가격 정보가 로드되기 전에 표시할 텍스트
+
+  row.insertCell(6).innerHTML = `<a href="${info.amazon_Link}"><img src="${info.amazon_img_link}" width="150" height="150"></a>`;
+  row.insertCell(7).innerHTML = '<a class="btn btn-primary" href="/estimate?infoName=gpu&info='+ info.gpuName.substring(0, 50) + '...' +'">추가</a>';
+
+  const ItemInfo = await getData(info.gpuName); // 가격 정보 가져오기
+  const priceInfo = formatCurrency(ItemInfo.lowestPrice);
+  const priceLink = ItemInfo.lowestPriceLink;
+  priceCell.innerHTML = `<a href="${priceLink}">${priceInfo}</a>`; // 가격 정보 업데이트
 }
 
 
+
 function paginate(page,inputBrand) {
-  const totalItems = cpuInfos.length;
+  const totalItems = gpuInfos.length;
   const totalPages = Math.ceil(totalItems / pageSize);
   const startIndex = (page - 1) * pageSize;
   const endIndex = Math.min(startIndex + pageSize, totalItems);
 
-  const tableBody = document.getElementById('CPUInfoTableBody');
+  const tableBody = document.getElementById('GPUInfoTableBody');
   tableBody.innerHTML = ''; // 테이블 초기화
-  for (let i = 0; i < totalItems; i++) {
+  for (let i = startIndex; i < endIndex; i++) {
     // 테이블에 데이터 추가
-    const cpuInfo = cpuInfos[i];
+    const gpuInfo = gpuInfos[i];
     const row = tableBody.insertRow(-1);
-    inputToTableBody(row,tableBody,cpuInfo);
+    inputToTableBody(row,tableBody,gpuInfo)
   }
-
-  // 남은 데이터들은 hide 처리
-  const tableRows = $('#CPUInfoTableBody tr');
-  tableRows.hide(); // 모든 데이터 숨기기
-  tableRows.slice(startIndex, endIndex).show(); // 페이지에 해당하는 데이터만 보이기
 
   const paginationElement = document.getElementById('pagination');
   paginationElement.innerHTML = '';
@@ -83,23 +88,19 @@ function paginate(page,inputBrand) {
 }
 
 
-
-
-
-
-function fetchAndAddCPUBrandCategoryToTable() {
-  axios.get('/cpu/brandCategory') // 서버의 /cpu 엔드포인트로 GET 요청을 보냅니다.
+function fetchAndAddGPUBrandCategoryToTable() {
+  axios.get('/gpu/brandCategory') // 서버의 /cpu 엔드포인트로 GET 요청을 보냅니다.
     .then(function (response) {
       // GET 요청이 성공하면 response.data에 서버에서 반환한 CPU 정보가 담겨 있습니다.
-      var cpuInfos = response.data;
+      var gpuInfos = response.data;
 
       // CPU 정보를 테이블에 추가합니다.
-      var tableBody = document.getElementById('CPUBrandCategoryBody');
-      for (var i = 0; i < cpuInfos.length; i++) {
-        var cpuInfo = cpuInfos[i];
+      var tableBody = document.getElementById('GPUBrandCategoryBody');
+      for (var i = 0; i < gpuInfos.length; i++) {
+        var gpuInfo = gpuInfos[i];
         var row = tableBody.insertRow(-1);
         row.insertCell(0).innerHTML =  '<div class="form-check"><input class="form-check-input" type="radio" name="cpuBrandCategoryRadios" id="brandRadio' + i + '"><label class="form-check-label" for="flexRadioDefault">'
-                                            + cpuInfo +
+                                            + gpuInfo +
                                           '</label>';
 
       }
@@ -110,33 +111,11 @@ function fetchAndAddCPUBrandCategoryToTable() {
     });
 }
 
-function fetchAndAddCPUSocketCategoryToTable() {
-  axios.get('/cpu/socketCategory') // 서버의 /cpu 엔드포인트로 GET 요청을 보냅니다.
-    .then(function (response) {
-      // GET 요청이 성공하면 response.data에 서버에서 반환한 CPU 정보가 담겨 있습니다.
-      var cpuInfos = response.data;
-
-      // CPU 정보를 테이블에 추가합니다.
-      var tableBody = document.getElementById('CPUSocketCategoryBody');
-      for (var i = 0; i < cpuInfos.length; i++) {
-        var cpuInfo = cpuInfos[i];
-        var row = tableBody.insertRow(-1);
-        row.insertCell(0).innerHTML =  '<div class="form-check"><input class="form-check-input" type="radio" name="cpuSocketCategoryRadios" id="socketRadio' + i + '"><label class="form-check-label" for="flexRadioDefault">'
-                                       + cpuInfo +
-                                       '</label>';
-
-      }
-    })
-    .catch(function (error) {
-      // GET 요청이 실패하면 에러 메시지를 출력합니다.
-      console.error(error);
-    });
-}
 
 function filterByBrandCategory(page = 1, inputBrand) {
- axios.get(`/cpu/byBrand`, { params: { brand : inputBrand} })
+ axios.get(`/gpu/byBrand`, { params: { brand : inputBrand} })
     .then(function (response) {
-      cpuInfos = response.data;
+      gpuInfos = response.data;
       paginate(1,'');
     })
     .catch(function (error) {
@@ -158,13 +137,13 @@ function filterTable(page, checkedSocketCategory, columnIndex, inputText) {
   var filteredRows = [];
   tableRowsClass.each(function(i, val) {
     var rowText = $(val).find('td').eq(columnIndex).text().toLowerCase();
-    var socketText = $(val).find('td').eq(4).text().toLowerCase();
+    /*var socketText = $(val).find('td').eq(4).text().toLowerCase();*/
 
     if (inputText && rowText.indexOf(inputText) === -1) {
       tableRowsClass.eq(i).hide();
-    } else if (checkedSocketCategory && socketText.indexOf(checkedSocketCategory) === -1) {
+    } /*else if (checkedSocketCategory && socketText.indexOf(checkedSocketCategory) === -1) {
       tableRowsClass.eq(i).hide();
-    } else {
+    }*/ else {
       tableRowsClass.eq(i).show();
       filteredRows.push(tableRowsClass.eq(i));
     }
@@ -220,29 +199,62 @@ function filterTable(page, checkedSocketCategory, columnIndex, inputText) {
 // 초기화 함수
 function clearAllFilters() {
   // 라디오 요소 가져오기
-  var cpuSocketCategoryRadios = document.querySelectorAll('#CPUSocketCategoryBody input[type="radio"]');
-  var cpuBrandCategoryRadios = document.querySelectorAll('#CPUBrandCategoryBody input[type="radio"]');
+  var cpuBrandCategoryRadios = document.querySelectorAll('#GPUBrandCategoryBody input[type="radio"]');
 
   //검색창 초기화
   document.getElementById("system-search").value = "";
 
-  // 라디오 버튼 모두 선택 해제
-  cpuSocketCategoryRadios.forEach(function(radio) {
-    radio.checked = false;
-  });
-
   cpuBrandCategoryRadios.forEach(function(radio) {
     radio.checked = false;
   });
-  let tableBody = document.getElementById('CPUInfoTableBody');
+  let tableBody = document.getElementById('GPUInfoTableBody');
   tableBody.innerHTML = '';
 
   checkedBrandCategory = undefined;
   checkedSocketCategory = undefined;
 
-  fetchAndAddCPUsToTable();
+  fetchAndAddGPUsToTable();
 }
 
+function getData(searchText) {
+  searchText = changeSearchText(searchText);
+
+  function NaverItem(lowestPrice, lowestPriceLink) {
+    this.lowestPrice = lowestPrice;
+    this.lowestPriceLink = lowestPriceLink;
+  }
+
+  let itemInfo = new NaverItem(10000000, '#');
+
+  return axios.get('/search/shop', {params: {query: searchText}})
+    .then(response => {
+      let items = response.data.items;
+      items.forEach(item => {
+        if (item.lprice < itemInfo.lowestPrice) {
+          itemInfo.lowestPrice = item.lprice;
+          itemInfo.lowestPriceLink = item.link;
+        }
+      });
+      return itemInfo; // Promise 객체의 resolve 함수로 itemInfo 객체를 반환
+    })
+    .catch(error => {
+      console.error(error);
+      return itemInfo; // Promise 객체의 reject 함수로 itemInfo 객체를 반환
+    });
+}
+
+function formatCurrency(amount) {
+  if(amount == 10000000 ) {
+        return "오류 발생"
+  }
+  const currency = new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' });
+  return currency.format(amount);
+}
+
+function changeSearchText(str) {
+  const words = str.split(' ');
+  return words.slice(0, MAX_NAME_BUNDLE).join(' ');
+}
 
 
 // 페이지가 로드되면 CPU 정보를 가져와 테이블에 추가합니다.
@@ -264,9 +276,8 @@ window.onload = function () {
     filterTable(1, checkedSocketCategory, columnIndex, inputText);
   });
 
-  fetchAndAddCPUsToTable();
-  fetchAndAddCPUBrandCategoryToTable();
-  fetchAndAddCPUSocketCategoryToTable();
+  fetchAndAddGPUsToTable();
+  fetchAndAddGPUBrandCategoryToTable();
 
 
   // 버튼 요소 가져오기
