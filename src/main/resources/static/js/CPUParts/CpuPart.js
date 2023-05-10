@@ -4,7 +4,7 @@ let cpuInfos = [];
 const pageSize = 10;
 const MAX_NAME_BUNDLE = 5;
 
-// 서버로부터 CPU 정보를 가Fuwbdiw져와 테이블에 추가하는 함수
+// 서버로부터 CPU 정보를 가져와 테이블에 추가하는 함수
 function fetchAndAddCPUsToTable(page = 1, filter = '') {
   axios.get(`/cpu`)
     .then(function (response) {

@@ -2,6 +2,7 @@ package com.kbd.PAB;
 
 
 import com.kbd.PAB.Service.PowService;
+import com.kbd.PAB.VO.CpuVO;
 import com.kbd.PAB.VO.PowerVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +23,11 @@ public class PowerController {
     @GetMapping
     public List<PowerVO> getAllCpus(@RequestParam(name = "page", defaultValue = "1")int pageNumber) {
         return powService.getAllPowerVos();
+    }
+
+    @GetMapping("/getInfo")
+    public PowerVO getPower(@RequestParam(name = "name")String name) {
+        return powService.getPowerByPowerName(name);
     }
 
     @GetMapping("/byBrand")

@@ -11,8 +11,11 @@ import java.util.List;
 @Repository
 public interface StoRepository extends JpaRepository <StorageVO, Integer> {
 
-    @Query("SELECT c FROM storages c WHERE c.brand = :Brand")
+    @Query("SELECT s FROM storages s WHERE s.brand = :Brand")
     List<StorageVO> findbyBrandName(@Param("Brand") String Brand);
+
+    @Query("SELECT s FROM storages s WHERE s.stoName LIKE :stoName%")
+    StorageVO findbyStorageName(@Param("stoName") String stoName);
 
     @Query("SELECT DISTINCT brand FROM storages")
     List<String> findDistinctBrand();

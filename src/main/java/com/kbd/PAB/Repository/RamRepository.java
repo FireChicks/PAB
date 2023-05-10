@@ -12,8 +12,11 @@ import java.util.List;
 @Repository
 public interface RamRepository extends JpaRepository <RamVO, Integer> {
 
-    @Query("SELECT m FROM RamVO m WHERE m.brand = :brandName")
+    @Query("SELECT r FROM RamVO r WHERE r.brand = :brandName")
     List<RamVO> findbyBrandName(@Param("brandName") String brandName);
+
+    @Query("SELECT r FROM RamVO r WHERE r.ramName LIKE :ramName%")
+    RamVO findbyRamName(@Param("ramName") String ramName);
 
     @Query("SELECT DISTINCT brand FROM RamVO")
     List<String> findDistinctBrand();

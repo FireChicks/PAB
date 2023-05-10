@@ -28,6 +28,13 @@ public class RamService {
         return  ramRepository.findbyBrandName(cpuBrand);
     }
 
+    public RamVO getRamByRamName(String ramName) {
+        if (ramName.endsWith("...")) {
+            ramName = ramName.substring(0, ramName.length() - 3);
+        }
+        return ramRepository.findbyRamName(ramName);
+    }
+
 
     public List<String> getDistinctBrand() {
         return ramRepository.findDistinctBrand();

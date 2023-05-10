@@ -29,6 +29,12 @@ public class GpuService {
         return  gpuRepository.findbyBrandName(cpuBrand);
     }
 
+    public GpuVO getGpuVOByGpuName(String gpuName) {
+
+        if (gpuName.endsWith("...")) {
+            gpuName = gpuName.substring(0, gpuName.length() - 3);
+        }return gpuRepository.findbyGPUName(gpuName);
+    }
 
     public List<String> getDistinctBrand() {
         return gpuRepository.findDistinctBrand();

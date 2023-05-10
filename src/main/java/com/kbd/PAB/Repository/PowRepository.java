@@ -10,8 +10,11 @@ import java.util.List;
 
 @Repository
 public interface PowRepository extends JpaRepository <PowerVO, Integer> {
-    @Query("SELECT m FROM PowerVO m WHERE m.brand = :brandName")
+    @Query("SELECT p FROM PowerVO p WHERE p.brand = :brandName")
     List<PowerVO> findbyBrandName(@Param("brandName") String brandName);
+
+    @Query("SELECT p FROM PowerVO p WHERE p.powName LIKE :powName%")
+    PowerVO findbyPowerName(@Param("powName") String powName);
 
     @Query("SELECT DISTINCT brand FROM PowerVO")
     List<String> findDistinctBrand();

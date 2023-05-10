@@ -22,6 +22,9 @@
           <a class="nav-link" href="/myPage">마이 페이지</a>
         </li>
         <li class="nav-item" th:if="${session.userID != null}">
+          <a class="nav-link" href="/estimate/myEstimate">내 견적 확인</a>
+        </li>
+        <li class="nav-item" th:if="${session.userID != null}">
           <a class="nav-link" href="/estimate">견적 생성하기</a>
         </li>
         <li class="nav-item">

@@ -47,9 +47,14 @@ public class CpuService {
     public List<String> getDistinctBrand() {
         return cpusRepository.findDistinctBrand();
     }
-
-
     public List<String> getDistinctSocket() {
         return cpusRepository.findDistinctSocket();
+    }
+
+    public CpuVO getCpuVOByCpuName(String cpuName) {
+        if (cpuName.endsWith("...")) {
+            cpuName = cpuName.substring(0, cpuName.length() - 3);
+        }
+        return cpusRepository.findbyCPUName(cpuName);
     }
 }

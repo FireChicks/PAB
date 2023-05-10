@@ -25,6 +25,11 @@ public class MbController {
         return mbService.getAllMbs();
     }
 
+    @GetMapping("/getInfo")
+    public MbVO getMb(@RequestParam(name = "name")String name) {
+        return mbService.getMbByMbName(name);
+    }
+
     @GetMapping("/byBrand")
     public List<MbVO> getByBrandNameCpus(@RequestParam(value = "brand", defaultValue = "ASUS")String cpuBrand) {
         List<MbVO> mbVOs = mbService.getMbVOSByBrandName(cpuBrand);

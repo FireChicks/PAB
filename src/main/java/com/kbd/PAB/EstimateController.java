@@ -11,6 +11,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @Configuration
 @ComponentScan(basePackages = { "com.kbd.PAB.repository", "com.kbd.PAB.service", "com.kbd.PAB.vo" })
 @EntityScan(basePackages = { "com.kbd.PAB.repository", "com.kbd.PAB.service", "com.kbd.PAB.vo" })
@@ -25,119 +27,49 @@ public class EstimateController {
 
     @RequestMapping("")
     public String estimate(Model model, HttpSession session,@RequestParam(name = "info", defaultValue = "") String info,@RequestParam(name = "infoName", defaultValue = "none") String infoName) {
-        ComEstimateVO comEstimateVO = new ComEstimateVO();
+        ComEstimateVO comEstimateVO = (ComEstimateVO) session.getAttribute("comEstimate");
+
         if(infoName.equals("cpuName")) {
             comEstimateVO.setCpuName(info);
-            if (session.getAttribute("mainBoard") != null) {
-                comEstimateVO.setMainBoard(session.getAttribute("mainBoard").toString());
-            }
-            if (session.getAttribute("ram") != null) {
-                comEstimateVO.setRam(session.getAttribute("ram").toString());
-            }
-            if (session.getAttribute("storage") != null) {
-                comEstimateVO.setStorage(session.getAttribute("storage").toString());
-            }
-            if (session.getAttribute("power") != null) {
-                comEstimateVO.setPower(session.getAttribute("power").toString());
-            }
-            if (session.getAttribute("gpu") != null) {
-                comEstimateVO.setGpu(session.getAttribute("gpu").toString());
-            }
         }else if(infoName.equals("mainBoard")) {
             comEstimateVO.setMainBoard(info);
-            if (session.getAttribute("cpuName") != null) {
-                comEstimateVO.setCpuName(session.getAttribute("cpuName").toString());
-            }
-            if (session.getAttribute("ram") != null) {
-                comEstimateVO.setRam(session.getAttribute("ram").toString());
-            }
-            if (session.getAttribute("storage") != null) {
-                comEstimateVO.setStorage(session.getAttribute("storage").toString());
-            }
-            if (session.getAttribute("power") != null) {
-                comEstimateVO.setPower(session.getAttribute("power").toString());
-            }
-            if (session.getAttribute("gpu") != null) {
-                comEstimateVO.setGpu(session.getAttribute("gpu").toString());
-            }
         }else if(infoName.equals("ram")) {
             comEstimateVO.setRam(info);
-            if (session.getAttribute("cpuName") != null) {
-                comEstimateVO.setCpuName(session.getAttribute("cpuName").toString());
-            }
-            if (session.getAttribute("mainBoard") != null) {
-                comEstimateVO.setMainBoard(session.getAttribute("mainBoard").toString());
-            }
-            if (session.getAttribute("storage") != null) {
-                comEstimateVO.setStorage(session.getAttribute("storage").toString());
-            }
-            if (session.getAttribute("power") != null) {
-                comEstimateVO.setPower(session.getAttribute("power").toString());
-            }
-            if (session.getAttribute("gpu") != null) {
-                comEstimateVO.setGpu(session.getAttribute("gpu").toString());
-            }
         }else if(infoName.equals("storage")) {
             comEstimateVO.setStorage(info);
-            if (session.getAttribute("cpuName") != null) {
-                comEstimateVO.setCpuName(session.getAttribute("cpuName").toString());
-            }
-            if (session.getAttribute("mainBoard") != null) {
-                comEstimateVO.setMainBoard(session.getAttribute("mainBoard").toString());
-            }
-            if (session.getAttribute("ram") != null) {
-                comEstimateVO.setRam(session.getAttribute("ram").toString());
-            }
-            if (session.getAttribute("power") != null) {
-                comEstimateVO.setPower(session.getAttribute("power").toString());
-            }
-            if (session.getAttribute("gpu") != null) {
-                comEstimateVO.setGpu(session.getAttribute("gpu").toString());
-            }
         }else if(infoName.equals("power")) {
             comEstimateVO.setPower(info);
-            if (session.getAttribute("cpuName") != null) {
-                comEstimateVO.setCpuName(session.getAttribute("cpuName").toString());
-            }
-            if (session.getAttribute("mainBoard") != null) {
-                comEstimateVO.setMainBoard(session.getAttribute("mainBoard").toString());
-            }
-            if (session.getAttribute("ram") != null) {
-                comEstimateVO.setRam(session.getAttribute("ram").toString());
-            }
-            if (session.getAttribute("storage") != null) {
-                comEstimateVO.setStorage(session.getAttribute("storage").toString());
-            }
-            if (session.getAttribute("gpu") != null) {
-                comEstimateVO.setGpu(session.getAttribute("gpu").toString());
-            }
         }else if(infoName.equals("gpu")) {
-            if (session.getAttribute("cpuName") != null) {
-                comEstimateVO.setCpuName(session.getAttribute("cpuName").toString());
-            }
-            if (session.getAttribute("mainBoard") != null) {
-                comEstimateVO.setMainBoard(session.getAttribute("mainBoard").toString());
-            }
-            if (session.getAttribute("ram") != null) {
-                comEstimateVO.setRam(session.getAttribute("ram").toString());
-            }
-            if (session.getAttribute("storage") != null) {
-                comEstimateVO.setStorage(session.getAttribute("storage").toString());
-            }
-            if (session.getAttribute("power") != null) {
-                comEstimateVO.setPower(session.getAttribute("power").toString());
-            }
             comEstimateVO.setGpu(info);
-        }else {
-            comEstimateVO = comEstimateService.selectEstimateOne(1);
+        }else { // 들어온게 없을 때
+            comEstimateVO = new ComEstimateVO();
+            comEstimateVO.setUserID(session.getAttribute("userID").toString());
         }
-        session.setAttribute("cpuName", comEstimateVO.getCpuName());
-        session.setAttribute("mainBoard", comEstimateVO.getMainBoard());
-        session.setAttribute("ram", comEstimateVO.getRam());
-        session.setAttribute("storage", comEstimateVO.getStorage());
-        session.setAttribute("power", comEstimateVO.getPower());
-        session.setAttribute("gpu", comEstimateVO.getGpu());
+
+        session.setAttribute("comEstimate", comEstimateVO);
         return "Estimate/makeEstimate";
+    }
+
+    @RequestMapping("/saveAction")
+    public String saveAction(HttpSession session) throws Exception {
+        ComEstimateVO comEstimateVO = (ComEstimateVO) session.getAttribute("comEstimate");
+        int isSaved = comEstimateService.saveEstimate(comEstimateVO);
+        if(isSaved == 1) {
+            return "index";
+        } else {
+            return "myEstimate";
+        }
+    }
+
+    @RequestMapping("/myEstimate")
+    public String getMyEstimate(Model model, HttpSession session) {
+        if(session.getAttribute("userID") == null) {
+            return "index";
+        }
+        String userID = session.getAttribute("userID").toString();
+        List<ComEstimateVO> vos = comEstimateService.findByUserID(userID);
+        model.addAttribute("estimateList", vos);
+        return "myEstimate";
     }
 
     @RequestMapping("/cpuParts")
@@ -160,7 +92,7 @@ public class EstimateController {
         return "Estimate/searchPowerParts";
     }
 
-    @RequestMapping("/stroageParts")
+    @RequestMapping("/storageParts")
     public String stoParts() {
         return "Estimate/searchStorageParts";
     }

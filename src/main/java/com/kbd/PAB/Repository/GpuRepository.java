@@ -17,6 +17,9 @@ public interface GpuRepository extends JpaRepository <GpuVO, Integer> {
     @Query("SELECT m FROM GpuVO m WHERE m.brand = :brandName")
     List<GpuVO> findbyBrandName(@Param("brandName") String brandName);
 
+    @Query("SELECT m FROM GpuVO m WHERE m.gpuName LIKE :gpuName%")
+    GpuVO findbyGPUName(@Param("gpuName") String gpuName);
+
     @Query("SELECT DISTINCT brand FROM GpuVO")
     List<String> findDistinctBrand();
 

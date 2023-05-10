@@ -21,4 +21,7 @@ import java.util.List;
         @Query("SELECT DISTINCT cpu_socket FROM cpus")
         List<String> findDistinctSocket();
 
+        @Query("SELECT c FROM cpus c WHERE c.cpuName LIKE :cpuName%")
+        CpuVO findbyCPUName(@Param("cpuName") String cpuName);
+
     }

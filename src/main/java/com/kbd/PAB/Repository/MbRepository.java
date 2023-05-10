@@ -14,6 +14,8 @@ public interface MbRepository extends JpaRepository <MbVO, Integer> {
     @Query("SELECT m FROM MbVO m WHERE m.brand = :brandName")
     List<MbVO> findbyBrandName(@Param("brandName") String brandName);
 
+    @Query("SELECT m FROM MbVO m WHERE m.mbName LIKE :mbName%")
+    MbVO findbyMBName(@Param("mbName") String mbName);
 
     @Query("SELECT DISTINCT brand FROM MbVO")
     List<String> findDistinctBrand();

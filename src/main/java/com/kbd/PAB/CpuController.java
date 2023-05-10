@@ -25,6 +25,11 @@ public class CpuController {
         return cpuService.getAllCpus();
     }
 
+    @GetMapping("/getInfo")
+    public CpuVO getCpu(@RequestParam(name = "name")String name) {
+        return cpuService.getCpuVOByCpuName(name);
+    }
+
     @GetMapping("/byBrand")
     public List<CpuVO> getByBrandNameCpus(@RequestParam(value = "brand", defaultValue = "AMD")String cpuBrand) {
         return cpuService.getCpuVOSByBrandName(cpuBrand);

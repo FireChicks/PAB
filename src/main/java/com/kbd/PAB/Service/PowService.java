@@ -26,6 +26,13 @@ public class PowService {
         return  powRepository.findbyBrandName(cpuBrand);
     }
 
+    public PowerVO getPowerByPowerName(String powName) {
+        if (powName.endsWith("...")) {
+            powName = powName.substring(0, powName.length() - 3);
+        }
+        return powRepository.findbyPowerName(powName);
+    }
+
 
     public List<String> getDistinctBrand() {
         return powRepository.findDistinctBrand();

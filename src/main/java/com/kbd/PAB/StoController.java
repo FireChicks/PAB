@@ -2,6 +2,7 @@ package com.kbd.PAB;
 
 
 import com.kbd.PAB.Service.StoService;
+import com.kbd.PAB.VO.CpuVO;
 import com.kbd.PAB.VO.StorageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +23,11 @@ public class StoController {
     @GetMapping
     public List<StorageVO> getAllStos(@RequestParam(name = "page", defaultValue = "1")int pageNumber) {
         return stoService.getAllStos();
+    }
+
+    @GetMapping("/getInfo")
+    public StorageVO getStorage(@RequestParam(name = "name")String name) {
+        return stoService.getStorageByStorageName(name);
     }
 
     @GetMapping("/byBrand")

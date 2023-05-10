@@ -25,13 +25,19 @@ public class MbService {
         return mbRepository.findAll();
     }
 
+    public MbVO getMbByMbName(String mbName) {
+        if (mbName.endsWith("...")) {
+            mbName = mbName.substring(0, mbName.length() - 3);
+        }return mbRepository.findbyMBName(mbName);
+    }
+
     public List<MbVO> getMbVOSByBrandName(String cpuBrand){
         return  mbRepository.findbyBrandName(cpuBrand);
     }
+
     public List<String> getDistinctBrand() {
         return mbRepository.findDistinctBrand();
     }
-
     public List<String> getDistinctSocket() {
         return mbRepository.findDistinctSocket();
     }

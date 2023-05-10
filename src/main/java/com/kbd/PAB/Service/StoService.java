@@ -44,6 +44,13 @@ public class StoService {
         return  stoRepository.findbyBrandName(stoBrand);
     }
 
+    public StorageVO getStorageByStorageName(String storageName) {
+        if (storageName.endsWith("...")) {
+            storageName = storageName.substring(0, storageName.length() - 3);
+        }
+        return stoRepository.findbyStorageName(storageName);
+    }
+
 
     public List<String> getDistinctBrand() {
         return stoRepository.findDistinctBrand();
