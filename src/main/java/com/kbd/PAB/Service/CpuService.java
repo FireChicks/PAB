@@ -52,9 +52,16 @@ public class CpuService {
     }
 
     public CpuVO getCpuVOByCpuName(String cpuName) {
-        if (cpuName.endsWith("...")) {
-            cpuName = cpuName.substring(0, cpuName.length() - 3);
+        String[] words = cpuName.split("\\s+");
+        StringBuilder extractedCpuName = new StringBuilder();
+
+        for (int i = 0; i < Math.min(5, words.length); i++) {
+            extractedCpuName.append(words[i]).append(" ");
         }
-        return cpusRepository.findbyCPUName(cpuName);
+
+        String modifiedCpuName = extractedCpuName.toString().trim();
+
+        return cpusRepository.findbyCPUName(modifiedCpuName);
     }
+
 }

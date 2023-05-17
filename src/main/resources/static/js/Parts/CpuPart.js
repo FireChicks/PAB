@@ -1,14 +1,15 @@
 var checkedBrandCategory;
 var checkedSocketCategory;
-let mbInfos = [];
+let cpuInfos = [];
 const pageSize = 10;
 const MAX_NAME_BUNDLE = 5;
+const MAX_CPUNAME_LENGTH = 100;
 
-// 서버로부터 CPU 정보를 가Fuwbdiw져와 테이블에 추가하는 함수
-function fetchAndAddMbsToTable(page = 1, filter = '') {
-  axios.get(`/mb`)
+// 서버로부터 CPU 정보를 가져와 테이블에 추가하는 함수
+function fetchAndAddCPUsToTable(page = 1, filter = '') {
+  axios.get(`/cpu`)
     .then(function (response) {
-      mbInfos = response.data;
+      cpuInfos = response.data;
       paginate(1,'');
     })
     .catch(function (error) {
@@ -17,23 +18,23 @@ function fetchAndAddMbsToTable(page = 1, filter = '') {
 }
 
 async function inputToTableBody(row, tableBody, info) {
-  if (info.mbName.length <= 50) {
-    row.insertCell(0).innerHTML = `<a href="${info.amazon_Link}">${info.mbName}</a>`;
+  if (info.cpuName.length <= MAX_CPUNAME_LENGTH) {
+    row.insertCell(0).innerHTML = `<a href="${info.amazon_Link}">${info.cpuName}</a>`;
   } else {
-    row.insertCell(0).innerHTML = `<a href="${info.amazon_Link}">${info.mbName.substring(0, 50) + '...'}</a>`;
+    row.insertCell(0).innerHTML = `<a href="${info.amazon_Link}">${info.cpuName.substring(0, MAX_CPUNAME_LENGTH) + '...'}</a>`;
   }
   row.insertCell(1).innerHTML = info.brand;
-  row.insertCell(2).innerHTML = info.mb_cpu_socket;
-  row.insertCell(3).innerHTML = info.mbMemGen;
-  row.insertCell(4).innerHTML = info.mbInfo.substring(0, 20) + '...';
+  row.insertCell(2).innerHTML = info.cpuModel;
+  row.insertCell(3).innerHTML = info.cpuSpeed;
+  row.insertCell(4).innerHTML = info.cpu_socket;
 
   const priceCell = row.insertCell(5);
   priceCell.innerHTML = '로딩 중...'; // 가격 정보가 로드되기 전에 표시할 텍스트
 
   row.insertCell(6).innerHTML = `<a href="${info.amazon_Link}"><img src="${info.amazon_img_link}" width="150" height="150"></a>`;
-  row.insertCell(7).innerHTML = '<a class="btn btn-primary" href="/estimate?infoName=mainBoard&info='+ info.mbName.substring(0, 50) + '...' +'">추가</a>';
+  row.insertCell(7).innerHTML = '<a class="btn btn-primary" href="/estimate?infoName=cpuName&info='+  encodeURIComponent(info.cpuName) + '">추가</a>';
 
-  const ItemInfo = await getData(info.mbName); // 가격 정보 가져오기
+  const ItemInfo = await getData(info.cpuName); // 가격 정보 가져오기
   const priceInfo = formatCurrency(ItemInfo.lowestPrice);
   const priceLink = ItemInfo.lowestPriceLink;
   priceCell.innerHTML = `<a href="${priceLink}">${priceInfo}</a>`; // 가격 정보 업데이트
@@ -42,18 +43,18 @@ async function inputToTableBody(row, tableBody, info) {
 
 
 function paginate(page,inputBrand) {
-  const totalItems = mbInfos.length;
+  const totalItems = cpuInfos.length;
   const totalPages = Math.ceil(totalItems / pageSize);
   const startIndex = (page - 1) * pageSize;
   const endIndex = Math.min(startIndex + pageSize, totalItems);
 
-  const tableBody = document.getElementById('InfoTableBody');
+  const tableBody = document.getElementById('CPUInfoTableBody');
   tableBody.innerHTML = ''; // 테이블 초기화
   for (let i = startIndex; i < endIndex; i++) {
     // 테이블에 데이터 추가
-    const mbInfo = mbInfos[i];
+    const cpuInfo = cpuInfos[i];
     const row = tableBody.insertRow(-1);
-    inputToTableBody(row,tableBody,mbInfo)
+    inputToTableBody(row,tableBody,cpuInfo)
   }
 
   const paginationElement = document.getElementById('pagination');
@@ -92,8 +93,8 @@ function paginate(page,inputBrand) {
 
 
 
-function fetchAndAddMBBrandCategoryToTable() {
-  axios.get('/mb/brandCategory') // 서버의 /cpu 엔드포인트로 GET 요청을 보냅니다.
+function fetchAndAddCPUBrandCategoryToTable() {
+  axios.get('/cpu/brandCategory') // 서버의 /cpu 엔드포인트로 GET 요청을 보냅니다.
     .then(function (response) {
       // GET 요청이 성공하면 response.data에 서버에서 반환한 CPU 정보가 담겨 있습니다.
       var cpuInfos = response.data;
@@ -115,8 +116,8 @@ function fetchAndAddMBBrandCategoryToTable() {
     });
 }
 
-function fetchAndAddMbSocketCategoryToTable() {
-  axios.get('/mb/socketCategory') // 서버의 /cpu 엔드포인트로 GET 요청을 보냅니다.
+function fetchAndAddCPUSocketCategoryToTable() {
+  axios.get('/cpu/socketCategory') // 서버의 /cpu 엔드포인트로 GET 요청을 보냅니다.
     .then(function (response) {
       // GET 요청이 성공하면 response.data에 서버에서 반환한 CPU 정보가 담겨 있습니다.
       var cpuInfos = response.data;
@@ -139,9 +140,9 @@ function fetchAndAddMbSocketCategoryToTable() {
 }
 
 function filterByBrandCategory(page = 1, inputBrand) {
- axios.get(`/mb/byBrand`, { params: { brand : inputBrand} })
+ axios.get(`/cpu/byBrand`, { params: { brand : inputBrand} })
     .then(function (response) {
-      mbInfos = response.data;
+      cpuInfos = response.data;
       paginate(1,'');
     })
     .catch(function (error) {
@@ -163,7 +164,7 @@ function filterTable(page, checkedSocketCategory, columnIndex, inputText) {
   var filteredRows = [];
   tableRowsClass.each(function(i, val) {
     var rowText = $(val).find('td').eq(columnIndex).text().toLowerCase();
-    var socketText = $(val).find('td').eq(2).text().toLowerCase();
+    var socketText = $(val).find('td').eq(4).text().toLowerCase();
 
     if (inputText && rowText.indexOf(inputText) === -1) {
       tableRowsClass.eq(i).hide();
@@ -239,13 +240,13 @@ function clearAllFilters() {
   cpuBrandCategoryRadios.forEach(function(radio) {
     radio.checked = false;
   });
-  let tableBody = document.getElementById('InfoTableBody');
+  let tableBody = document.getElementById('CPUInfoTableBody');
   tableBody.innerHTML = '';
 
   checkedBrandCategory = undefined;
   checkedSocketCategory = undefined;
 
-  fetchAndAddMbsToTable();
+  fetchAndAddCPUsToTable();
 }
 
 function getData(searchText) {
@@ -308,9 +309,9 @@ window.onload = function () {
     filterTable(1, checkedSocketCategory, columnIndex, inputText);
   });
 
-  fetchAndAddMbsToTable();
-  fetchAndAddMbBrandCategoryToTable();
-  fetchAndAddMbSocketCategoryToTable();
+  fetchAndAddCPUsToTable();
+  fetchAndAddCPUBrandCategoryToTable();
+  fetchAndAddCPUSocketCategoryToTable();
 
 
   // 버튼 요소 가져오기
@@ -336,5 +337,11 @@ window.onload = function () {
      var inputValue = $('#system-search').val().toLowerCase();
      filterTable(1, checkedSocketCategory, columnIndex, inputText);
    });
+
+  var actionNotice = null; // 여기에 액션 알림의 값을 할당해야 합니다.
+  if (actionNotice) {
+    window.alert(actionNotice);
+  }
+
 
 };

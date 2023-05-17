@@ -12,7 +12,7 @@
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-<script src="/js/Parts/RamPart.js"></script>
+<script src="/js/bbsParts/StoPart.js"></script>
 <!------ Include the above in your HEAD tag ---------->
 
 <div class="container">
@@ -27,8 +27,8 @@
               <option value="0">이름</option>
               <option value="1">브랜드</option>
               <option value="2" >용량</option>
-              <option value="3" >세대</option>
-              <option value="4" >상세 내용</option>
+              <option value="3" >폼펙터</option>
+              <option value="4" >타입</option>
             </select>
           </span>
           <input class="form-control" id="system-search" name="q" placeholder="Search for" required>
@@ -45,7 +45,16 @@
                 <th><b>브랜드</b></th>
               </tr>
             </thead>
-            <tbody id="RAMBrandCategoryBody">
+            <tbody id="STOBrandCategoryBody">
+            </tbody>
+          </table>
+          <table class="table">
+            <thead>
+            <tr>
+              <td><b>와트</b></td>
+            </tr>
+            </thead>
+            <tbody id="STOTypeCategoryBody">
             </tbody>
           </table>
           </form>
@@ -56,17 +65,17 @@
       <table class="table table-list-search">
         <thead>
         <tr>
-          <th>RamName</th>
+          <th>StorageName</th>
           <th>Brand</th>
-          <th>Ram_Capacity</th>
-          <th>Ram_Gen</th>
-          <th>Ram_Info</th>
+          <th>Sto_Capacity</th>
+          <th>Sto_FormFactor</th>
+          <th>Sto_Type</th>
           <th>Price</th>
           <th>IMG</th>
           <th>추가</th>
         </tr>
         </thead>
-        <tbody id="RAMInfoTableBody">
+        <tbody id="STOInfoTableBody">
         </tbody>
       </table>
       <nav>
@@ -75,20 +84,12 @@
     </div>
   </div>
 </div>
-<script th:inline="javascript"> //부품 판독 기능 기능
+<script th:inline="javascript">
   window.addEventListener('DOMContentLoaded', function() {
     var actionNotice = /*[[${actionNotice}]]*/ null;
     if (actionNotice) {
-      var result = window.confirm(actionNotice);
-      if(result) {
-        var ramInfo = /*[[${ramInfo}]]*/ "";
-        var ramInfoName = /*[[${ramInfoName}]]*/ "";
-        var url = `/estimate?infoName=${ramInfoName}&info=${ramInfo}&isForceAdd=true`;
-        window.location.href = url;
-      } else {
-        isForceAdd = false;
-      }
-   }
+      window.alert(actionNotice);
+    }
   });
 </script>
 </body>

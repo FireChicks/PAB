@@ -18,13 +18,13 @@ public class UserService {
 
 
     public int login(String userID, String userPW) { // 1 정상 반환, 0 ID/PW 불일치, -1 예상하지 못한 오류
-        Optional<UserVO> userVOs = userRepository.findById(userID);
-        if(userVOs != null) {
-            if(userVOs.get().getUserID().equals(userID)) {
-                if(userVOs.get().isCorrectPassword(userPW)) {
+        Optional<UserVO> userOptional = userRepository.findById(userID);
+        if (userOptional.isPresent()) {
+            UserVO userVO = userOptional.get();
+            if (userVO.getUserID().equals(userID)) {
+                if (userVO.isCorrectPassword(userPW)) {
                     return 1;
-                }
-                else {
+                } else {
                     return 0;
                 }
             }
@@ -32,11 +32,12 @@ public class UserService {
             return 0;
         }
         return -1;
+
     }
 
     public int isValidID(String userID) { // 1 정상 반환, 0 ID/PW 불일치, -1 예상하지 못한 오류
         Optional<UserVO> userVOs = userRepository.findById(userID);
-        if (userVOs != null) {
+        if (userVOs.isPresent()) {
                 return 1;
         }
         return 0;

@@ -26,9 +26,16 @@ public class MbService {
     }
 
     public MbVO getMbByMbName(String mbName) {
-        if (mbName.endsWith("...")) {
-            mbName = mbName.substring(0, mbName.length() - 3);
-        }return mbRepository.findbyMBName(mbName);
+        String[] words = mbName.split("\\s+");
+        StringBuilder extractedMbName = new StringBuilder();
+
+        for (int i = 0; i < Math.min(5, words.length); i++) {
+            extractedMbName.append(words[i]).append(" ");
+        }
+
+        String modifiedMbName = extractedMbName.toString().trim();
+
+        return mbRepository.findbyMBName(modifiedMbName);
     }
 
     public List<MbVO> getMbVOSByBrandName(String cpuBrand){

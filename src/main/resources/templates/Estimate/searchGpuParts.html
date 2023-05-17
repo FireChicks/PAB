@@ -12,7 +12,7 @@
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-<script src="/js/CPUParts/GpuPart.js"></script>
+<script src="/js/Parts/GpuPart.js"></script>
 <!------ Include the above in your HEAD tag ---------->
 
 <div class="container">
@@ -74,5 +74,14 @@
     </div>
   </div>
 </div>
+<script th:inline="javascript">
+  window.addEventListener('DOMContentLoaded', function() {
+    var actionNotice = /*[[${actionNotice}]]*/ null;
+    if (actionNotice) {
+      window.alert(actionNotice);
+    }
+  });
+</script>
+
 </body>
 </html>

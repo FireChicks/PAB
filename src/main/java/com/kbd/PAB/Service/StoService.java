@@ -45,10 +45,16 @@ public class StoService {
     }
 
     public StorageVO getStorageByStorageName(String storageName) {
-        if (storageName.endsWith("...")) {
-            storageName = storageName.substring(0, storageName.length() - 3);
+        String[] words = storageName.split("\\s+");
+        StringBuilder extractedStoName = new StringBuilder();
+
+        for (int i = 0; i < Math.min(5, words.length); i++) {
+            extractedStoName.append(words[i]).append(" ");
         }
-        return stoRepository.findbyStorageName(storageName);
+
+        String modifiedStoName = extractedStoName.toString().trim();
+
+        return stoRepository.findbyStorageName(modifiedStoName);
     }
 
 

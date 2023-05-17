@@ -1,14 +1,15 @@
 var checkedBrandCategory;
 var checkedSocketCategory;
-let stoInfos = [];
+let mbInfos = [];
 const pageSize = 10;
-const MAX_NAME_BUNDLE = 5; //이름에서 꺼내올 문자열 개수
+const MAX_NAME_BUNDLE = 5;
+const MAX_MBNAME_LENGTH = 100;
 
 // 서버로부터 CPU 정보를 가Fuwbdiw져와 테이블에 추가하는 함수
-function fetchAndAddSTOsToTable(page = 1, filter = '') {
-  axios.get(`/sto`)
+function fetchAndAddMbsToTable(page = 1, filter = '') {
+  axios.get(`/mb`)
     .then(function (response) {
-      stoInfos = response.data;
+      mbInfos = response.data;
       paginate(1,'');
     })
     .catch(function (error) {
@@ -17,23 +18,23 @@ function fetchAndAddSTOsToTable(page = 1, filter = '') {
 }
 
 async function inputToTableBody(row, tableBody, info) {
-  if (info.stoName.length <= 50) {
-    row.insertCell(0).innerHTML = `<a href="${info.amazon_Link}">${info.stoName}</a>`;
+  if (info.mbName.length <= MAX_MBNAME_LENGTH) {
+    row.insertCell(0).innerHTML = `<a href="${info.amazon_Link}">${info.mbName}</a>`;
   } else {
-    row.insertCell(0).innerHTML = `<a href="${info.amazon_Link}">${info.stoName.substring(0, 50) + '...'}</a>`;
+    row.insertCell(0).innerHTML = `<a href="${info.amazon_Link}">${info.mbName.substring(0, MAX_MBNAME_LENGTH) + '...'}</a>`;
   }
   row.insertCell(1).innerHTML = info.brand;
-  row.insertCell(2).innerHTML = info.stoCapacity;
-  row.insertCell(3).innerHTML = info.stoInterface;
-  row.insertCell(4).innerHTML = info.stoType;
+  row.insertCell(2).innerHTML = info.mb_cpu_socket;
+  row.insertCell(3).innerHTML = info.mbMemGen;
+  row.insertCell(4).innerHTML = info.mbInfo.substring(0, 20) + '...';
 
   const priceCell = row.insertCell(5);
   priceCell.innerHTML = '로딩 중...'; // 가격 정보가 로드되기 전에 표시할 텍스트
 
-  row.insertCell(6).innerHTML = `<a href="${info.amazon_Link}"><img src="${info.amazon_img_link}" width="200" height="150"></a>`;
-  row.insertCell(7).innerHTML = '<a class="btn btn-primary" href="/estimate?infoName=storage&info='+ info.stoName +'">추가</a>';
+  row.insertCell(6).innerHTML = `<a href="${info.amazon_Link}"><img src="${info.amazon_img_link}" width="150" height="150"></a>`;
+  row.insertCell(7).innerHTML = '<a class="btn btn-primary" href="/bbs/updateEstimate?infoName=mainBoard&info='+ info.mbName.substring(0, 50) + '...' +'">추가</a>';
 
-  const ItemInfo = await getData(info.stoName); // 가격 정보 가져오기
+  const ItemInfo = await getData(info.mbName); // 가격 정보 가져오기
   const priceInfo = formatCurrency(ItemInfo.lowestPrice);
   const priceLink = ItemInfo.lowestPriceLink;
   priceCell.innerHTML = `<a href="${priceLink}">${priceInfo}</a>`; // 가격 정보 업데이트
@@ -42,18 +43,18 @@ async function inputToTableBody(row, tableBody, info) {
 
 
 function paginate(page,inputBrand) {
-  const totalItems = stoInfos.length;
+  const totalItems = mbInfos.length;
   const totalPages = Math.ceil(totalItems / pageSize);
   const startIndex = (page - 1) * pageSize;
   const endIndex = Math.min(startIndex + pageSize, totalItems);
 
-  const tableBody = document.getElementById('STOInfoTableBody');
+  const tableBody = document.getElementById('InfoTableBody');
   tableBody.innerHTML = ''; // 테이블 초기화
   for (let i = startIndex; i < endIndex; i++) {
     // 테이블에 데이터 추가
-    const stoInfo = stoInfos[i];
+    const mbInfo = mbInfos[i];
     const row = tableBody.insertRow(-1);
-    inputToTableBody(row,tableBody,stoInfo)
+    inputToTableBody(row,tableBody,mbInfo)
   }
 
   const paginationElement = document.getElementById('pagination');
@@ -92,19 +93,19 @@ function paginate(page,inputBrand) {
 
 
 
-function fetchAndAddSTOBrandCategoryToTable() {
-  axios.get('/sto/brandCategory') // 서버의 /cpu 엔드포인트로 GET 요청을 보냅니다.
+function fetchAndAddMbBrandCategoryToTable() {
+  axios.get('/mb/brandCategory') // 서버의 /cpu 엔드포인트로 GET 요청을 보냅니다.
     .then(function (response) {
       // GET 요청이 성공하면 response.data에 서버에서 반환한 CPU 정보가 담겨 있습니다.
-      var stoInfos = response.data;
+      var cpuInfos = response.data;
 
       // CPU 정보를 테이블에 추가합니다.
-      var tableBody = document.getElementById('STOBrandCategoryBody');
-      for (var i = 0; i < stoInfos.length; i++) {
-        var stoInfo = stoInfos[i];
+      var tableBody = document.getElementById('CPUBrandCategoryBody');
+      for (var i = 0; i < cpuInfos.length; i++) {
+        var cpuInfo = cpuInfos[i];
         var row = tableBody.insertRow(-1);
         row.insertCell(0).innerHTML =  '<div class="form-check"><input class="form-check-input" type="radio" name="cpuBrandCategoryRadios" id="brandRadio' + i + '"><label class="form-check-label" for="flexRadioDefault">'
-                                            + stoInfo +
+                                            + cpuInfo +
                                           '</label>';
 
       }
@@ -115,19 +116,19 @@ function fetchAndAddSTOBrandCategoryToTable() {
     });
 }
 
-function fetchAndAddSTOTypeCategoryToTable() {
-  axios.get('/sto/typeCategory') // 서버의 /cpu 엔드포인트로 GET 요청을 보냅니다.
+function fetchAndAddMbSocketCategoryToTable() {
+  axios.get('/mb/socketCategory') // 서버의 /cpu 엔드포인트로 GET 요청을 보냅니다.
     .then(function (response) {
       // GET 요청이 성공하면 response.data에 서버에서 반환한 CPU 정보가 담겨 있습니다.
-      var stoInfos = response.data;
+      var cpuInfos = response.data;
 
       // CPU 정보를 테이블에 추가합니다.
-      var tableBody = document.getElementById('STOTypeCategoryBody');
-      for (var i = 0; i < stoInfos.length; i++) {
-        var stoInfo = stoInfos[i];
+      var tableBody = document.getElementById('CPUSocketCategoryBody');
+      for (var i = 0; i < cpuInfos.length; i++) {
+        var cpuInfo = cpuInfos[i];
         var row = tableBody.insertRow(-1);
         row.insertCell(0).innerHTML =  '<div class="form-check"><input class="form-check-input" type="radio" name="cpuSocketCategoryRadios" id="socketRadio' + i + '"><label class="form-check-label" for="flexRadioDefault">'
-                                       + stoInfo +
+                                       + cpuInfo +
                                        '</label>';
 
       }
@@ -139,16 +140,16 @@ function fetchAndAddSTOTypeCategoryToTable() {
 }
 
 function filterByBrandCategory(page = 1, inputBrand) {
- axios.get(`/sto/byBrand`, { params: { brand : inputBrand} })
+ axios.get(`/mb/byBrand`, { params: { brand : inputBrand} })
     .then(function (response) {
-      stoInfos = response.data;
+      mbInfos = response.data;
       paginate(1,'');
     })
     .catch(function (error) {
       console.error(error);
     });
-    var stoSocketCategoryRadios = document.querySelectorAll('#STOTypeCategoryBody input[type="radio"]');
-    stoSocketCategoryRadios.forEach(function(radio) {
+    var cpuSocketCategoryRadios = document.querySelectorAll('#CPUSocketCategoryBody input[type="radio"]');
+    cpuSocketCategoryRadios.forEach(function(radio) {
         radio.checked = false;
       });
 }
@@ -163,7 +164,7 @@ function filterTable(page, checkedSocketCategory, columnIndex, inputText) {
   var filteredRows = [];
   tableRowsClass.each(function(i, val) {
     var rowText = $(val).find('td').eq(columnIndex).text().toLowerCase();
-    var socketText = $(val).find('td').eq(4).text().toLowerCase();
+    var socketText = $(val).find('td').eq(2).text().toLowerCase();
 
     if (inputText && rowText.indexOf(inputText) === -1) {
       tableRowsClass.eq(i).hide();
@@ -225,27 +226,27 @@ function filterTable(page, checkedSocketCategory, columnIndex, inputText) {
 // 초기화 함수
 function clearAllFilters() {
   // 라디오 요소 가져오기
-  var stoTypeCategoryRadios = document.querySelectorAll('#STOTypeCategoryBody input[type="radio"]');
-  var stoBrandCategoryRadios = document.querySelectorAll('#STOBrandCategoryBody input[type="radio"]');
+  var cpuSocketCategoryRadios = document.querySelectorAll('#CPUSocketCategoryBody input[type="radio"]');
+  var cpuBrandCategoryRadios = document.querySelectorAll('#CPUBrandCategoryBody input[type="radio"]');
 
   //검색창 초기화
   document.getElementById("system-search").value = "";
 
   // 라디오 버튼 모두 선택 해제
-  stoTypeCategoryRadios.forEach(function(radio) {
+  cpuSocketCategoryRadios.forEach(function(radio) {
     radio.checked = false;
   });
 
-  stoBrandCategoryRadios.forEach(function(radio) {
+  cpuBrandCategoryRadios.forEach(function(radio) {
     radio.checked = false;
   });
-  let tableBody = document.getElementById('STOInfoTableBody');
+  let tableBody = document.getElementById('InfoTableBody');
   tableBody.innerHTML = '';
 
   checkedBrandCategory = undefined;
   checkedSocketCategory = undefined;
 
-  fetchAndAddSTOsToTable();
+  fetchAndAddMbsToTable();
 }
 
 function getData(searchText) {
@@ -308,9 +309,9 @@ window.onload = function () {
     filterTable(1, checkedSocketCategory, columnIndex, inputText);
   });
 
-  fetchAndAddSTOsToTable();
-  fetchAndAddSTOBrandCategoryToTable();
-  fetchAndAddSTOTypeCategoryToTable();
+  fetchAndAddMbsToTable();
+  fetchAndAddMbBrandCategoryToTable();
+  fetchAndAddMbSocketCategoryToTable();
 
 
   // 버튼 요소 가져오기
@@ -336,5 +337,10 @@ window.onload = function () {
      var inputValue = $('#system-search').val().toLowerCase();
      filterTable(1, checkedSocketCategory, columnIndex, inputText);
    });
+
+   var actionNotice = null; // 여기에 액션 알림의 값을 할당해야 합니다.
+     if (actionNotice) {
+       window.alert(actionNotice);
+     }
 
 };

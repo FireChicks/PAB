@@ -26,15 +26,20 @@ public class UserController {
     UserService userService;
 
     @RequestMapping("/loginAction")
-    public String loginAction(@RequestParam(name = "userID")String userID, @RequestParam(name = "userPW")String userPW, HttpSession session) {
+    public String loginAction(@RequestParam(name = "userID")String userID, @RequestParam(name = "userPW")String userPW, HttpSession session, Model model) {
         int isLoginSuccess = userService.login(userID, userPW);
         if(isLoginSuccess == 1) {
             session.setAttribute("userID", userID);
+            ComEstimateVO comEstimateVO = new ComEstimateVO();
+            comEstimateVO.setUserID(session.getAttribute("userID").toString());
+            session.setAttribute("comEstimate", comEstimateVO);
             return "index";
         } else if (isLoginSuccess == 0) {
-            return "redirect:/login";
+            model.addAttribute("actionNotice","ID나 PW가 불일치합니다.");
+            return "/login";
         } else {
-            return "redirect:/login";
+            model.addAttribute("actionNotice","예상하지 못한 오류가 발생했습니다. 다시 시도해주십시오.");
+            return "/login";
         }
 
     }
@@ -46,10 +51,10 @@ public class UserController {
     }
 
     @RequestMapping("/joinAction")
-    public String joinAction(@RequestParam(name = "userID")String userID,
+    public String joinAction(Model model, @RequestParam(name = "userID")String userID,
                              @RequestParam(name = "userPW")String userPW,
                              @RequestParam(name = "userName")String userName,
-                             @RequestParam(name = "file") MultipartFile file        ) throws IOException {
+                             @RequestParam(name = "file") MultipartFile file) throws IOException {
     int isValidID   = userService.isValidID(userID);
     int isValidName = userService.isValidUserName(userName);
     byte[] bytes = IOUtils.toByteArray(file.getInputStream());
@@ -60,10 +65,13 @@ public class UserController {
         userService.join(userVO);
         return "index";
     } else if(isValidID == 0) {
-
+        model.addAttribute("actionNotice","ID가 유효하지 않습니다.");
+        return "/join";
     }else if(isValidName == 0) {
-
+        model.addAttribute("actionNotice","name이 유효하지 않습니다.");
+        return "/join";
     }
+        model.addAttribute("actionNotice","성공적으로 회원가입 완료했습니다.");
     return "index";
     }
 

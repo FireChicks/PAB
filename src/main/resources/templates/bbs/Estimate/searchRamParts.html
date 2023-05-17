@@ -12,7 +12,7 @@
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-<script src="/js/Parts/RamPart.js"></script>
+<script src="/js/bbsParts/RamPart.js"></script>
 <!------ Include the above in your HEAD tag ---------->
 
 <div class="container">
@@ -83,7 +83,7 @@
       if(result) {
         var ramInfo = /*[[${ramInfo}]]*/ "";
         var ramInfoName = /*[[${ramInfoName}]]*/ "";
-        var url = `/estimate?infoName=${ramInfoName}&info=${ramInfo}&isForceAdd=true`;
+        var url = `/bbs/updateEstimate?infoName=${ramInfoName}&info=${ramInfo}&isForceAdd=true`;
         window.location.href = url;
       } else {
         isForceAdd = false;

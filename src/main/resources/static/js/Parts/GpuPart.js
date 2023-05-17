@@ -1,14 +1,15 @@
 var checkedBrandCategory;
 var checkedSocketCategory;
-let ramInfos = [];
+let gpuInfos = [];
 const pageSize = 10;
 const MAX_NAME_BUNDLE = 8;
+const MAX_GPUNAME_LENGTH = 100;
 
 // 서버로부터 CPU 정보를 가Fuwbdiw져와 테이블에 추가하는 함수
-function fetchAndAddRamsToTable(page = 1, filter = '') {
-  axios.get(`/ram`)
+function fetchAndAddGPUsToTable(page = 1, filter = '') {
+  axios.get(`/gpu`)
     .then(function (response) {
-      ramInfos = response.data;
+      gpuInfos = response.data;
       paginate(1,'');
     })
     .catch(function (error) {
@@ -17,23 +18,23 @@ function fetchAndAddRamsToTable(page = 1, filter = '') {
 }
 
 async function inputToTableBody(row, tableBody, info) {
-  if (info.ramName.length <= 50) {
-    row.insertCell(0).innerHTML = `<a href="${info.amazon_Link}">${info.ramName}</a>`;
+  if (info.gpuName.length <= MAX_GPUNAME_LENGTH) {
+    row.insertCell(0).innerHTML = `<a href="${info.amazon_Link}">${info.gpuName}</a>`;
   } else {
-    row.insertCell(0).innerHTML = `<a href="${info.amazon_Link}">${info.ramName.substring(0, 50) + '...'}</a>`;
+    row.insertCell(0).innerHTML = `<a href="${info.amazon_Link}">${info.gpuName.substring(0, MAX_GPUNAME_LENGTH) + '...'}</a>`;
   }
   row.insertCell(1).innerHTML = info.brand;
-  row.insertCell(2).innerHTML = info.ramCapacity;
-  row.insertCell(3).innerHTML = info.ramGen;
-  row.insertCell(4).innerHTML = info.ramInfo.substring(0, 50) + '...';
+  row.insertCell(2).innerHTML = info.gpuModel;
+  row.insertCell(3).innerHTML = info.gpuClock;
+  row.insertCell(4).innerHTML = info.gpuInfo.substring(0, 50) + '...';
 
   const priceCell = row.insertCell(5);
   priceCell.innerHTML = '로딩 중...'; // 가격 정보가 로드되기 전에 표시할 텍스트
 
   row.insertCell(6).innerHTML = `<a href="${info.amazon_Link}"><img src="${info.amazon_img_link}" width="150" height="150"></a>`;
-  row.insertCell(7).innerHTML = '<a class="btn btn-primary" href="/estimate?infoName=ram&info='+ info.ramName.substring(0, 50) + '...' +'">추가</a>';
+  row.insertCell(7).innerHTML = '<a class="btn btn-primary" href="/estimate?infoName=gpu&info='+ info.gpuName.substring(0, 50) + '...' +'">추가</a>';
 
-  const ItemInfo = await getData(info.ramName); // 가격 정보 가져오기
+  const ItemInfo = await getData(info.gpuName); // 가격 정보 가져오기
   const priceInfo = formatCurrency(ItemInfo.lowestPrice);
   const priceLink = ItemInfo.lowestPriceLink;
   priceCell.innerHTML = `<a href="${priceLink}">${priceInfo}</a>`; // 가격 정보 업데이트
@@ -42,18 +43,18 @@ async function inputToTableBody(row, tableBody, info) {
 
 
 function paginate(page,inputBrand) {
-  const totalItems = ramInfos.length;
+  const totalItems = gpuInfos.length;
   const totalPages = Math.ceil(totalItems / pageSize);
   const startIndex = (page - 1) * pageSize;
   const endIndex = Math.min(startIndex + pageSize, totalItems);
 
-  const tableBody = document.getElementById('RAMInfoTableBody');
+  const tableBody = document.getElementById('GPUInfoTableBody');
   tableBody.innerHTML = ''; // 테이블 초기화
   for (let i = startIndex; i < endIndex; i++) {
     // 테이블에 데이터 추가
-    const ramInfo = ramInfos[i];
+    const gpuInfo = gpuInfos[i];
     const row = tableBody.insertRow(-1);
-    inputToTableBody(row,tableBody,ramInfo)
+    inputToTableBody(row,tableBody,gpuInfo)
   }
 
   const paginationElement = document.getElementById('pagination');
@@ -88,19 +89,19 @@ function paginate(page,inputBrand) {
 }
 
 
-function fetchAndAddRamBrandCategoryToTable() {
-  axios.get('/ram/brandCategory') // 서버의 /cpu 엔드포인트로 GET 요청을 보냅니다.
+function fetchAndAddGPUBrandCategoryToTable() {
+  axios.get('/gpu/brandCategory') // 서버의 /cpu 엔드포인트로 GET 요청을 보냅니다.
     .then(function (response) {
       // GET 요청이 성공하면 response.data에 서버에서 반환한 CPU 정보가 담겨 있습니다.
-      var ramInfos = response.data;
+      var gpuInfos = response.data;
 
       // CPU 정보를 테이블에 추가합니다.
-      var tableBody = document.getElementById('RAMBrandCategoryBody');
-      for (var i = 0; i < ramInfos.length; i++) {
-        var ramInfo = ramInfos[i];
+      var tableBody = document.getElementById('GPUBrandCategoryBody');
+      for (var i = 0; i < gpuInfos.length; i++) {
+        var gpuInfo = gpuInfos[i];
         var row = tableBody.insertRow(-1);
         row.insertCell(0).innerHTML =  '<div class="form-check"><input class="form-check-input" type="radio" name="cpuBrandCategoryRadios" id="brandRadio' + i + '"><label class="form-check-label" for="flexRadioDefault">'
-                                            + ramInfo +
+                                            + gpuInfo +
                                           '</label>';
 
       }
@@ -113,15 +114,15 @@ function fetchAndAddRamBrandCategoryToTable() {
 
 
 function filterByBrandCategory(page = 1, inputBrand) {
- axios.get(`/ram/byBrand`, { params: { brand : inputBrand} })
+ axios.get(`/gpu/byBrand`, { params: { brand : inputBrand} })
     .then(function (response) {
-      ramInfos = response.data;
+      gpuInfos = response.data;
       paginate(1,'');
     })
     .catch(function (error) {
       console.error(error);
     });
-    var cpuSocketCategoryRadios = document.querySelectorAll('#RAMSocketCategoryBody input[type="radio"]');
+    var cpuSocketCategoryRadios = document.querySelectorAll('#CPUSocketCategoryBody input[type="radio"]');
     cpuSocketCategoryRadios.forEach(function(radio) {
         radio.checked = false;
       });
@@ -199,7 +200,7 @@ function filterTable(page, checkedSocketCategory, columnIndex, inputText) {
 // 초기화 함수
 function clearAllFilters() {
   // 라디오 요소 가져오기
-  var cpuBrandCategoryRadios = document.querySelectorAll('#RAMBrandCategoryBody input[type="radio"]');
+  var cpuBrandCategoryRadios = document.querySelectorAll('#GPUBrandCategoryBody input[type="radio"]');
 
   //검색창 초기화
   document.getElementById("system-search").value = "";
@@ -207,13 +208,13 @@ function clearAllFilters() {
   cpuBrandCategoryRadios.forEach(function(radio) {
     radio.checked = false;
   });
-  let tableBody = document.getElementById('RAMInfoTableBody');
+  let tableBody = document.getElementById('GPUInfoTableBody');
   tableBody.innerHTML = '';
 
   checkedBrandCategory = undefined;
   checkedSocketCategory = undefined;
 
-  fetchAndAddRamsToTable();
+  fetchAndAddGPUsToTable();
 }
 
 function getData(searchText) {
@@ -276,8 +277,8 @@ window.onload = function () {
     filterTable(1, checkedSocketCategory, columnIndex, inputText);
   });
 
-  fetchAndAddRamsToTable();
-  fetchAndAddRamBrandCategoryToTable();
+  fetchAndAddGPUsToTable();
+  fetchAndAddGPUBrandCategoryToTable();
 
 
   // 버튼 요소 가져오기

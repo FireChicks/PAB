@@ -12,7 +12,7 @@
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-<script src="/js/Parts/RamPart.js"></script>
+<script src="/js/bbsParts/CpuPart.js"></script>
 <!------ Include the above in your HEAD tag ---------->
 
 <div class="container">
@@ -26,9 +26,9 @@
               <option value="all">전체</option>
               <option value="0">이름</option>
               <option value="1">브랜드</option>
-              <option value="2" >용량</option>
-              <option value="3" >세대</option>
-              <option value="4" >상세 내용</option>
+              <option value="2" >모델명</option>
+              <option value="4" >소켓</option>
+              <option value="5" >상세 내용</option>
             </select>
           </span>
           <input class="form-control" id="system-search" name="q" placeholder="Search for" required>
@@ -45,7 +45,16 @@
                 <th><b>브랜드</b></th>
               </tr>
             </thead>
-            <tbody id="RAMBrandCategoryBody">
+            <tbody id="CPUBrandCategoryBody">
+            </tbody>
+          </table>
+          <table class="table">
+            <thead>
+            <tr>
+              <td><b>소켓</b></td>
+            </tr>
+            </thead>
+            <tbody id="CPUSocketCategoryBody">
             </tbody>
           </table>
           </form>
@@ -56,17 +65,17 @@
       <table class="table table-list-search">
         <thead>
         <tr>
-          <th>RamName</th>
+          <th>cpuName</th>
           <th>Brand</th>
-          <th>Ram_Capacity</th>
-          <th>Ram_Gen</th>
-          <th>Ram_Info</th>
+          <th>CPU_Model</th>
+          <th>CPU_Speed</th>
+          <th>CPU_Socket</th>
           <th>Price</th>
           <th>IMG</th>
           <th>추가</th>
         </tr>
         </thead>
-        <tbody id="RAMInfoTableBody">
+        <tbody id="CPUInfoTableBody">
         </tbody>
       </table>
       <nav>
@@ -75,15 +84,16 @@
     </div>
   </div>
 </div>
-<script th:inline="javascript"> //부품 판독 기능 기능
+
+<script th:inline="javascript"> //부품 호환 여부 확인
   window.addEventListener('DOMContentLoaded', function() {
     var actionNotice = /*[[${actionNotice}]]*/ null;
     if (actionNotice) {
       var result = window.confirm(actionNotice);
       if(result) {
-        var ramInfo = /*[[${ramInfo}]]*/ "";
-        var ramInfoName = /*[[${ramInfoName}]]*/ "";
-        var url = `/estimate?infoName=${ramInfoName}&info=${ramInfo}&isForceAdd=true`;
+        var cpuInfo = /*[[${cpuInfo}]]*/ "";
+        var cpuInfoName = /*[[${cpuInfoName}]]*/ "";
+        var url = `/bbs/updateEstimate?infoName=${cpuInfoName}&info=${cpuInfo}&isForceAdd=true`;
         window.location.href = url;
       } else {
         isForceAdd = false;
@@ -91,5 +101,6 @@
    }
   });
 </script>
+
 </body>
 </html>

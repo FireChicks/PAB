@@ -28,7 +28,7 @@
           <a class="nav-link" href="/estimate">견적 생성하기</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link disabled">Disabled</a>
+          <a class="nav-link" href="/bbs">게시판</a>
         </li>
       </ul>
       <form class="d-flex" role="search">
@@ -37,5 +37,15 @@
       </form>
     </div>
   </div>
+  <script th:inline="javascript">
+  window.onload = function() {
+    var actionNotice = /*[[${actionNotice}]]*/ null;
+    if (actionNotice) {
+      window.alert(actionNotice);
+    }
+  };
+</script>
 </nav>
+
+
 

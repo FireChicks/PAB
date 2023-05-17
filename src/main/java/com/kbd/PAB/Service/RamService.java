@@ -29,10 +29,16 @@ public class RamService {
     }
 
     public RamVO getRamByRamName(String ramName) {
-        if (ramName.endsWith("...")) {
-            ramName = ramName.substring(0, ramName.length() - 3);
+        String[] words = ramName.split("\\s+");
+        StringBuilder extractedRamName = new StringBuilder();
+
+        for (int i = 0; i < Math.min(5, words.length); i++) {
+            extractedRamName.append(words[i]).append(" ");
         }
-        return ramRepository.findbyRamName(ramName);
+
+        String modifiedRamName = extractedRamName.toString().trim();
+
+        return ramRepository.findbyRamName(modifiedRamName);
     }
 
 

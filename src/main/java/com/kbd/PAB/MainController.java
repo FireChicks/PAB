@@ -5,6 +5,7 @@ import com.kbd.PAB.Crawling.CpuInfoCrawlingService;
 import com.kbd.PAB.Crawling.MbInfoCrawlingService;
 import com.kbd.PAB.Service.*;
 import com.kbd.PAB.VO.*;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
@@ -246,7 +247,7 @@ public class MainController {
 
 
     @RequestMapping("/index")
-    public String mainPage() {
+    public String mainPage(HttpSession session) {
         return "index";
     }
 

@@ -1,14 +1,15 @@
 var checkedBrandCategory;
 var checkedSocketCategory;
-let cpuInfos = [];
+let powInfos = [];
 const pageSize = 10;
-const MAX_NAME_BUNDLE = 5;
+const MAX_NAME_BUNDLE = 8;
+const MAX_POWNAME_LENGTH = 50;
 
-// 서버로부터 CPU 정보를 가져와 테이블에 추가하는 함수
-function fetchAndAddCPUsToTable(page = 1, filter = '') {
-  axios.get(`/cpu`)
+// 서버로부터 CPU 정보를 가Fuwbdiw져와 테이블에 추가하는 함수
+function fetchAndAddPowsToTable(page = 1, filter = '') {
+  axios.get(`/pow`)
     .then(function (response) {
-      cpuInfos = response.data;
+      powInfos = response.data;
       paginate(1,'');
     })
     .catch(function (error) {
@@ -17,23 +18,23 @@ function fetchAndAddCPUsToTable(page = 1, filter = '') {
 }
 
 async function inputToTableBody(row, tableBody, info) {
-  if (info.cpuName.length <= 50) {
-    row.insertCell(0).innerHTML = `<a href="${info.amazon_Link}">${info.cpuName}</a>`;
+  if (info.powName.length <= MAX_POWNAME_LENGTH) {
+    row.insertCell(0).innerHTML = `<a href="${info.amazon_Link}">${info.powName}</a>`;
   } else {
-    row.insertCell(0).innerHTML = `<a href="${info.amazon_Link}">${info.cpuName.substring(0, 50) + '...'}</a>`;
+    row.insertCell(0).innerHTML = `<a href="${info.amazon_Link}">${info.powName.substring(0, MAX_POWNAME_LENGTH) + '...'}</a>`;
   }
   row.insertCell(1).innerHTML = info.brand;
-  row.insertCell(2).innerHTML = info.cpuModel;
-  row.insertCell(3).innerHTML = info.cpuSpeed;
-  row.insertCell(4).innerHTML = info.cpu_socket;
+  row.insertCell(2).innerHTML = info.powPins;
+  row.insertCell(3).innerHTML = info.powWatts;
+  row.insertCell(4).innerHTML = info.powInfo.substring(0, 50) + '...';
 
   const priceCell = row.insertCell(5);
   priceCell.innerHTML = '로딩 중...'; // 가격 정보가 로드되기 전에 표시할 텍스트
 
   row.insertCell(6).innerHTML = `<a href="${info.amazon_Link}"><img src="${info.amazon_img_link}" width="150" height="150"></a>`;
-  row.insertCell(7).innerHTML = '<a class="btn btn-primary" href="/estimate?infoName=cpuName&info='+ info.cpuName +'">추가</a>';
+  row.insertCell(7).innerHTML = '<a class="btn btn-primary" href="/bbs/updateEstimate?infoName=power&info='+ info.powName.substring(0, 50) + '...' +'">추가</a>';
 
-  const ItemInfo = await getData(info.cpuName); // 가격 정보 가져오기
+  const ItemInfo = await getData(info.powName); // 가격 정보 가져오기
   const priceInfo = formatCurrency(ItemInfo.lowestPrice);
   const priceLink = ItemInfo.lowestPriceLink;
   priceCell.innerHTML = `<a href="${priceLink}">${priceInfo}</a>`; // 가격 정보 업데이트
@@ -42,18 +43,18 @@ async function inputToTableBody(row, tableBody, info) {
 
 
 function paginate(page,inputBrand) {
-  const totalItems = cpuInfos.length;
+  const totalItems = powInfos.length;
   const totalPages = Math.ceil(totalItems / pageSize);
   const startIndex = (page - 1) * pageSize;
   const endIndex = Math.min(startIndex + pageSize, totalItems);
 
-  const tableBody = document.getElementById('CPUInfoTableBody');
+  const tableBody = document.getElementById('POWInfoTableBody');
   tableBody.innerHTML = ''; // 테이블 초기화
   for (let i = startIndex; i < endIndex; i++) {
     // 테이블에 데이터 추가
-    const cpuInfo = cpuInfos[i];
+    const powInfo = powInfos[i];
     const row = tableBody.insertRow(-1);
-    inputToTableBody(row,tableBody,cpuInfo)
+    inputToTableBody(row,tableBody,powInfo)
   }
 
   const paginationElement = document.getElementById('pagination');
@@ -88,23 +89,19 @@ function paginate(page,inputBrand) {
 }
 
 
-
-
-
-
-function fetchAndAddCPUBrandCategoryToTable() {
-  axios.get('/cpu/brandCategory') // 서버의 /cpu 엔드포인트로 GET 요청을 보냅니다.
+function fetchAndAddPowBrandCategoryToTable() {
+  axios.get('/pow/brandCategory') // 서버의 /cpu 엔드포인트로 GET 요청을 보냅니다.
     .then(function (response) {
       // GET 요청이 성공하면 response.data에 서버에서 반환한 CPU 정보가 담겨 있습니다.
-      var cpuInfos = response.data;
+      var powInfos = response.data;
 
       // CPU 정보를 테이블에 추가합니다.
-      var tableBody = document.getElementById('CPUBrandCategoryBody');
-      for (var i = 0; i < cpuInfos.length; i++) {
-        var cpuInfo = cpuInfos[i];
+      var tableBody = document.getElementById('POWBrandCategoryBody');
+      for (var i = 0; i < powInfos.length; i++) {
+        var powInfo = powInfos[i];
         var row = tableBody.insertRow(-1);
         row.insertCell(0).innerHTML =  '<div class="form-check"><input class="form-check-input" type="radio" name="cpuBrandCategoryRadios" id="brandRadio' + i + '"><label class="form-check-label" for="flexRadioDefault">'
-                                            + cpuInfo +
+                                            + powInfo +
                                           '</label>';
 
       }
@@ -115,41 +112,42 @@ function fetchAndAddCPUBrandCategoryToTable() {
     });
 }
 
-function fetchAndAddCPUSocketCategoryToTable() {
-  axios.get('/cpu/socketCategory') // 서버의 /cpu 엔드포인트로 GET 요청을 보냅니다.
-    .then(function (response) {
-      // GET 요청이 성공하면 response.data에 서버에서 반환한 CPU 정보가 담겨 있습니다.
-      var cpuInfos = response.data;
-
-      // CPU 정보를 테이블에 추가합니다.
-      var tableBody = document.getElementById('CPUSocketCategoryBody');
-      for (var i = 0; i < cpuInfos.length; i++) {
-        var cpuInfo = cpuInfos[i];
-        var row = tableBody.insertRow(-1);
-        row.insertCell(0).innerHTML =  '<div class="form-check"><input class="form-check-input" type="radio" name="cpuSocketCategoryRadios" id="socketRadio' + i + '"><label class="form-check-label" for="flexRadioDefault">'
-                                       + cpuInfo +
-                                       '</label>';
-
-      }
-    })
-    .catch(function (error) {
-      // GET 요청이 실패하면 에러 메시지를 출력합니다.
-      console.error(error);
-    });
-}
 
 function filterByBrandCategory(page = 1, inputBrand) {
- axios.get(`/cpu/byBrand`, { params: { brand : inputBrand} })
+ axios.get(`/pow/byBrand`, { params: { brand : inputBrand} })
     .then(function (response) {
-      cpuInfos = response.data;
+      powInfos = response.data;
       paginate(1,'');
     })
     .catch(function (error) {
       console.error(error);
     });
-    var cpuSocketCategoryRadios = document.querySelectorAll('#CPUSocketCategoryBody input[type="radio"]');
-    cpuSocketCategoryRadios.forEach(function(radio) {
-        radio.checked = false;
+    var powWattCategoryRadios = document.querySelectorAll('#POWWattCategoryBody input[type="radio"]');
+    powWattCategoryRadios.forEach(function(radio) {
+          radio.checked = false;
+        });
+}
+
+function fetchAndAddPowWattCategoryToTable() {
+  axios.get('/pow/wattCategory') // 서버의 /cpu 엔드포인트로 GET 요청을 보냅니다.
+      .then(function (response) {
+        // GET 요청이 성공하면 response.data에 서버에서 반환한 CPU 정보가 담겨 있습니다.
+        var wattInfos = response.data;
+
+        // CPU 정보를 테이블에 추가합니다.
+        var tableBody = document.getElementById('POWWattCategoryBody');
+        for (var i = 0; i < wattInfos.length; i++) {
+          var watInfo = wattInfos[i];
+          var row = tableBody.insertRow(-1);
+          row.insertCell(0).innerHTML =  '<div class="form-check"><input class="form-check-input" type="radio" name="cpuSocketCategoryRadios" id="socketRadio' + i + '"><label class="form-check-label" for="flexRadioDefault">'
+                                         + watInfo +
+                                         '</label>';
+
+        }
+      })
+      .catch(function (error) {
+        // GET 요청이 실패하면 에러 메시지를 출력합니다.
+        console.error(error);
       });
 }
 
@@ -163,7 +161,7 @@ function filterTable(page, checkedSocketCategory, columnIndex, inputText) {
   var filteredRows = [];
   tableRowsClass.each(function(i, val) {
     var rowText = $(val).find('td').eq(columnIndex).text().toLowerCase();
-    var socketText = $(val).find('td').eq(4).text().toLowerCase();
+    var socketText = $(val).find('td').eq(3).text().toLowerCase();
 
     if (inputText && rowText.indexOf(inputText) === -1) {
       tableRowsClass.eq(i).hide();
@@ -225,27 +223,26 @@ function filterTable(page, checkedSocketCategory, columnIndex, inputText) {
 // 초기화 함수
 function clearAllFilters() {
   // 라디오 요소 가져오기
-  var cpuSocketCategoryRadios = document.querySelectorAll('#CPUSocketCategoryBody input[type="radio"]');
-  var cpuBrandCategoryRadios = document.querySelectorAll('#CPUBrandCategoryBody input[type="radio"]');
+  var powBrandCategoryRadios = document.querySelectorAll('#POWBrandCategoryBody input[type="radio"]');
+  var powWattCategoryRadios = document.querySelectorAll('#POWWattCategoryBody input[type="radio"]');
 
   //검색창 초기화
   document.getElementById("system-search").value = "";
 
-  // 라디오 버튼 모두 선택 해제
-  cpuSocketCategoryRadios.forEach(function(radio) {
+  powBrandCategoryRadios.forEach(function(radio) {
     radio.checked = false;
   });
 
-  cpuBrandCategoryRadios.forEach(function(radio) {
-    radio.checked = false;
-  });
-  let tableBody = document.getElementById('CPUInfoTableBody');
+  powWattCategoryRadios.forEach(function(radio) {
+      radio.checked = false;
+    });
+  let tableBody = document.getElementById('POWInfoTableBody');
   tableBody.innerHTML = '';
 
   checkedBrandCategory = undefined;
   checkedSocketCategory = undefined;
 
-  fetchAndAddCPUsToTable();
+  fetchAndAddPowsToTable();
 }
 
 function getData(searchText) {
@@ -308,9 +305,9 @@ window.onload = function () {
     filterTable(1, checkedSocketCategory, columnIndex, inputText);
   });
 
-  fetchAndAddCPUsToTable();
-  fetchAndAddCPUBrandCategoryToTable();
-  fetchAndAddCPUSocketCategoryToTable();
+  fetchAndAddPowsToTable();
+  fetchAndAddPowBrandCategoryToTable();
+  fetchAndAddPowWattCategoryToTable();
 
 
   // 버튼 요소 가져오기

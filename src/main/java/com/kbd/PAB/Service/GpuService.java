@@ -30,10 +30,16 @@ public class GpuService {
     }
 
     public GpuVO getGpuVOByGpuName(String gpuName) {
+        String[] words = gpuName.split("\\s+");
+        StringBuilder extractedGpuName = new StringBuilder();
 
-        if (gpuName.endsWith("...")) {
-            gpuName = gpuName.substring(0, gpuName.length() - 3);
-        }return gpuRepository.findbyGPUName(gpuName);
+        for (int i = 0; i < Math.min(5, words.length); i++) {
+            extractedGpuName.append(words[i]).append(" ");
+        }
+
+        String modifiedGpuName = extractedGpuName.toString().trim();
+
+        return gpuRepository.findbyGPUName(modifiedGpuName);
     }
 
     public List<String> getDistinctBrand() {

@@ -27,10 +27,16 @@ public class PowService {
     }
 
     public PowerVO getPowerByPowerName(String powName) {
-        if (powName.endsWith("...")) {
-            powName = powName.substring(0, powName.length() - 3);
+        String[] words = powName.split("\\s+");
+        StringBuilder extractedPowName = new StringBuilder();
+
+        for (int i = 0; i < Math.min(5, words.length); i++) {
+            extractedPowName.append(words[i]).append(" ");
         }
-        return powRepository.findbyPowerName(powName);
+
+        String modifiedPowName = extractedPowName.toString().trim();
+
+        return powRepository.findbyPowerName(modifiedPowName);
     }
 
 

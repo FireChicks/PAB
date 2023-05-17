@@ -12,7 +12,7 @@
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-<script src="/js/CPUParts/CpuPart.js"></script>
+<script src="/js/Parts/CpuPart.js"></script>
 <!------ Include the above in your HEAD tag ---------->
 
 <div class="container">
@@ -84,5 +84,23 @@
     </div>
   </div>
 </div>
+
+<script th:inline="javascript"> //부품 판독 기능 기능
+  window.addEventListener('DOMContentLoaded', function() {
+    var actionNotice = /*[[${actionNotice}]]*/ null;
+    if (actionNotice) {
+      var result = window.confirm(actionNotice);
+      if(result) {
+        var cpuInfo = /*[[${cpuInfo}]]*/ "";
+        var cpuInfoName = /*[[${cpuInfoName}]]*/ "";
+        var url = `/estimate?infoName=${cpuInfoName}&info=${cpuInfo}&isForceAdd=true`;
+        window.location.href = url;
+      } else {
+        isForceAdd = false;
+      }
+   }
+  });
+</script>
+
 </body>
 </html>
