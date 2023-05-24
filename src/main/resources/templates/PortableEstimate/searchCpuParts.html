@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script src="/js/PortableEstimateParts/CpuPart.js"></script>
+<!------ Include the above in your HEAD tag ---------->
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-3">
+      <form action="#" method="get">
+        <div class="input-group">
+          <!-- USE TWITTER TYPEAHEAD JSON WITH API TO SEARCH -->
+          <span class="input-group-btn">
+            <select name="search" id="category-select" class="form-select " aria-label="Default select example">
+              <option value="all">전체</option>
+              <option value="0">이름</option>
+              <option value="1">브랜드</option>
+              <option value="2" >모델명</option>
+              <option value="4" >소켓</option>
+              <option value="5" >상세 내용</option>
+            </select>
+          </span>
+          <input class="form-control" id="system-search" name="q" placeholder="Search for" required>
+          <span class="input-group-btn">
+                        <button type="submit" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+        </div>
+        <div>
+          <input type="button" id="clear-filters-btn" value="초기화">
+          <form action="#" method="get">
+          <table class="table">
+            <thead>
+              <tr>
+                <th><b>브랜드</b></th>
+              </tr>
+            </thead>
+            <tbody id="CPUBrandCategoryBody">
+            </tbody>
+          </table>
+          <table class="table">
+            <thead>
+            <tr>
+              <td><b>소켓</b></td>
+            </tr>
+            </thead>
+            <tbody id="CPUSocketCategoryBody">
+            </tbody>
+          </table>
+          </form>
+        </div>
+      </form>
+    </div>
+    <div class="col-md-9">
+      <table class="table table-list-search">
+        <thead>
+        <tr>
+          <th>cpuName</th>
+          <th>Brand</th>
+          <th>CPU_Model</th>
+          <th>CPU_Speed</th>
+          <th>CPU_Socket</th>
+          <th>Price</th>
+          <th>IMG</th>
+          <th>추가</th>
+        </tr>
+        </thead>
+        <tbody id="CPUInfoTableBody">
+        </tbody>
+      </table>
+      <nav>
+        <ul class="pagination justify-content-center" id="pagination"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<script th:inline="javascript"> //부품 판독 기능 기능
+  window.addEventListener('DOMContentLoaded', function() {
+    var actionNotice = /*[[${actionNotice}]]*/ null;
+    if (actionNotice) {
+      var result = window.confirm(actionNotice);
+      if(result) {
+        var cpuInfo = /*[[${cpuInfo}]]*/ "";
+        var cpuInfoName = /*[[${cpuInfoName}]]*/ "";
+        var url = `/estimate?infoName=${cpuInfoName}&info=${cpuInfo}&isForceAdd=true`;
+        window.location.href = url;
+      } else {
+        isForceAdd = false;
+      }
+   }
+  });
+</script>
+
+</body>
+</html>

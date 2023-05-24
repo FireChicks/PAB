@@ -15,7 +15,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 @Configuration
@@ -24,8 +27,8 @@ import java.util.List;
 
 
 @Controller
-@RequestMapping("/estimate")
-public class EstimateController {
+@RequestMapping("/PortableEstimate")
+public class PortableEstimateController {
 
     @Autowired
     private ComEstimateService comEstimateService;
@@ -37,17 +40,18 @@ public class EstimateController {
 
     @Autowired
     private RamService ramService;
-
     @RequestMapping("")
     public String estimate(RedirectAttributes rttr, Model model, HttpSession session,
                            @RequestParam(name = "info", defaultValue = "") String info,
                            @RequestParam(name = "infoName", defaultValue = "none") String infoName,
-                           @RequestParam(name = "isForceAdd", defaultValue = "none") String isForceAdd) {
+                           @RequestParam(name = "isForceAdd", defaultValue = "none") String isForceAdd,
+                           @RequestParam(name="originalPage", defaultValue = "none") String originalPage) {
 
         if(session.getAttribute("userID") == null) {
             model.addAttribute("actionNotice","먼저 로그인해주시기 바랍니다.");
             return "index";
         }
+        String originPage = "index";
 
         ComEstimateVO comEstimateVO = (ComEstimateVO) session.getAttribute("comEstimate");
 
@@ -55,7 +59,7 @@ public class EstimateController {
             if(comEstimateVO.getMainBoard() != null) { //메인보드와의 호환성 체크
                 String mainBoardSocket = mbService.getMbByMbName(comEstimateVO.getMainBoard()).getMb_cpu_socket();
                 String cpuSocket = cpuService.getCpuVOByCpuName(info).getCpu_socket();
-                
+
                 if(mainBoardSocket.equals(cpuSocket)) { //소켓 일치
                     model.addAttribute("actionNotice","성공적으로 CPU를 추가하였습니다.");
                 } else {
@@ -63,15 +67,15 @@ public class EstimateController {
                         comEstimateVO.setCpuName(info);
                         comEstimateVO.setMainBoard(null);
                         session.setAttribute("comEstimate", comEstimateVO);
-                        return "Estimate/makeEstimate";
+                        return originPage;
                     }
                     rttr.addFlashAttribute("actionNotice", "cpu소켓과 메인보드 소켓이 일치하지 않습니다. 그럼에도 추가하시겠습니까? CPU 소켓: " + cpuSocket + ", 메인보드 CPU 소켓: " + mainBoardSocket +" 주의: 견적에 저장된 메인보드의 정보가 사라집니다.");
                     rttr.addFlashAttribute("cpuInfo", info);
                     rttr.addFlashAttribute("cpuInfoName", infoName);
-                    return "redirect:/estimate/cpuParts";
+                    return "redirect:/PortablEstimate/cpuParts";
                 }
             }
-            
+
             comEstimateVO.setCpuName(info);
         }else if(infoName.equals("mainBoard")) {
             if(comEstimateVO.getCpuName() != null) { //CPU와의 호환성 체크
@@ -86,12 +90,12 @@ public class EstimateController {
                         comEstimateVO.setRam(null);
                         comEstimateVO.setMainBoard(info);
                         session.setAttribute("comEstimate", comEstimateVO);
-                        return "Estimate/makeEstimate";
+                        return originalPage;
                     }
                     rttr.addFlashAttribute("actionNotice", "cpu소켓과 메인보드 소켓이 일치하지 않습니다. 그럼에도 추가하시겠습니까? CPU 소켓: " + cpuSocket + ", 메인보드 CPU 소켓: " + mainBoardSocket+" 주의: 견적에 저장된 CPU와 RAM의 정보가 사라집니다.");
                     rttr.addFlashAttribute("mbInfo", info);
                     rttr.addFlashAttribute("mbInfoName", infoName);
-                    return "redirect:/estimate/mbParts";
+                    return "redirect:/PortablEstimate/mbParts";
                 }
 
                 if(comEstimateVO.getRam() != null) { //Ram과의 호환성 체크
@@ -106,12 +110,12 @@ public class EstimateController {
                             comEstimateVO.setRam(null);
                             comEstimateVO.setMainBoard(info);
                             session.setAttribute("comEstimate", comEstimateVO);
-                            return "Estimate/makeEstimate";
+                            return originalPage;
                         }
                         rttr.addFlashAttribute("actionNotice", "Ram세대와 메인보드 소켓이 일치하지 않습니다. 그럼에도 추가하시겠습니까? 메인보드 ram 세대: " +  mainBoardRamGen + ", ram 세대: " + ramGen +" 주의: 견적에 저장된 CPU와 RAM의 정보가 사라집니다.");
                         rttr.addFlashAttribute("mbInfo", info);
                         rttr.addFlashAttribute("mbInfoName", infoName);
-                        return "redirect:/estimate/mbParts";
+                        return "redirect:/PortablEstimate/mbParts";
                     }
                 }
             }
@@ -128,12 +132,12 @@ public class EstimateController {
                         comEstimateVO.setRam(info);
                         comEstimateVO.setMainBoard(null);
                         session.setAttribute("comEstimate", comEstimateVO);
-                        return "Estimate/makeEstimate";
+                        return originalPage;
                     }
                     rttr.addFlashAttribute("actionNotice", "Ram세대와 메인보드 소켓이 일치하지 않습니다. 그럼에도 추가하시겠습니까? 메인보드 ram 세대: " +  mainBoardRamGen + ", ram 세대: " + ramGen+" 주의: 견적에 저장된 메인보드의 정보가 사라집니다.");
                     rttr.addFlashAttribute("ramInfo", info);
                     rttr.addFlashAttribute("ramInfoName", infoName);
-                    return "redirect:/estimate/ramParts";
+                    return "redirect:/PortablEstimate/ramParts";
                 }
             }
             comEstimateVO.setRam(info);
@@ -150,140 +154,50 @@ public class EstimateController {
             comEstimateVO.setUserID(session.getAttribute("userID").toString());
         }
 
-            session.setAttribute("comEstimate", comEstimateVO);
-        return "Estimate/makeEstimate";
-    }
-
-    @RequestMapping("/resetEstimate")
-    public String resetEstimate(HttpSession session, Model model) {
-        if(session.getAttribute("userID") == null) {
-            model.addAttribute("actionNotice","먼저 로그인해주시기 바랍니다.");
-            return "index";
-        }
-        ComEstimateVO vo = new ComEstimateVO();
-        ComEstimateVO originalVO = ((ComEstimateVO) session.getAttribute("comEstimate"));
-        vo.setUserID(originalVO.getUserID());
-
-        if(session.getAttribute("comEstimate") != null) {
-            if(originalVO != null || !originalVO.equals("")) {
-                vo.setComEstimateID(originalVO.getComEstimateID());
-            }
-        }
-        session.setAttribute("comEstimate", vo);
-        return "Estimate/makeEstimate";
-    }
-
-
-    @RequestMapping("/edit")
-    public String editAction(HttpSession session,Model model, @RequestParam(name = "estimateID", defaultValue = "") int estimateID) {
-        if(session.getAttribute("userID") == null) {
-            model.addAttribute("actionNotice","먼저 로그인해주시기 바랍니다.");
-            return "index";
-        }
-
-        String userID = session.getAttribute("userID").toString();
-        if(!comEstimateService.isUserPosEstimate(estimateID, userID)) { //견적 소유 확인
-            model.addAttribute("actionNotice","당신이 소유하고 있는 견적이 아닙니다.");
-            return "index";
-        }
-
-        ComEstimateVO comEstimateVO = comEstimateService.findByEstimateID(estimateID);
         session.setAttribute("comEstimate", comEstimateVO);
-        return "Estimate/makeEstimate";
-    }
+        try {
+            URI uri = new URI(originalPage);
+            String path = uri.getPath();
 
-    @RequestMapping("/deleteAction")
-    public String deleteAction(HttpSession session, Model model, @RequestParam(name = "estimateID", defaultValue = "") int estimateID) {
-        if(session.getAttribute("userID") == null) {
-            model.addAttribute("actionNotice","먼저 로그인해주시기 바랍니다.");
-            return "index";
+            // path에서 첫 번째 슬래시를 제거하고, 첫 번째 슬래시부터 다음 슬래시까지의 부분 추출
+            String[] pathSegments = path.split("/");
+            originPage = pathSegments[1];
+            originPage = "redirect:/" + originPage +"?isReOpen=true";
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
         }
-        String userID = session.getAttribute("userID").toString();
-        if(comEstimateService.deleteEstimate(estimateID, userID) == 1) {
-            model.addAttribute("actionNotice","성공적으로 견적을 삭제했습니다.");
-            List<ComEstimateVO> vos = comEstimateService.findByUserID(userID);
-            model.addAttribute("estimateList", vos);
-            return "myEstimate";
-        } else {
-            model.addAttribute("actionNotice","견적과 계정이 일치하지 않습니다.");
-            return  "index";
-        }
+        return originPage;
     }
-
-    @RequestMapping("/saveAction")
-    public String saveAction(HttpSession session, Model model) throws Exception {
-        ComEstimateVO comEstimateVO = (ComEstimateVO) session.getAttribute("comEstimate");
-        int isSaved = comEstimateService.saveEstimate(comEstimateVO);
-        if(isSaved == 1) {
-            String userID = session.getAttribute("userID").toString();
-            List<ComEstimateVO> vos = comEstimateService.findByUserID(userID);
-            model.addAttribute("estimateList", vos);                   //내 견적에서 조회할 견적들
-
-            model.addAttribute("comEstimate", null);       //세션에 저장된 견적 초기화
-            model.addAttribute("actionNotice","성공적으로 견적을 저장했습니다.");
-            return "myEstimate";
-        } else if(isSaved == 2){
-            String userID = session.getAttribute("userID").toString();
-            List<ComEstimateVO> vos = comEstimateService.findByUserID(userID);
-            model.addAttribute("estimateList", vos);
-            model.addAttribute("comEstimate", null);       //세션에 저장된 견적 초기화
-            model.addAttribute("actionNotice","성공적으로 견적을 업데이트했습니다.");
-            return "myEstimate";
-        }else {
-            model.addAttribute("actionNotice","계정당 저장 가능한 견적의 개수는 3개입니다.");
-            return "Estimate/makeEstimate";
-        }
-    }
-
-    @RequestMapping("/myEstimate")
-    public String getMyEstimate(Model model, HttpSession session) {
-        if(session.getAttribute("userID") == null) {
-            model.addAttribute("actionNotice","먼저 로그인해주시기 바랍니다.");
-            return "index";
-        }
-        String userID = session.getAttribute("userID").toString();
-        List<ComEstimateVO> vos = comEstimateService.findByUserID(userID);
-        model.addAttribute("estimateList", vos);
-        return "myEstimate";
-    }
-
 
     @RequestMapping("/cpuParts")
     public String cpuParts() {
-        return "Estimate/searchCpuParts";
+        return "PortableEstimate/searchCpuParts";
     }
 
     @RequestMapping("/mbParts")
     public String mbParts() {
-        return "Estimate/searchMbParts";
+        return "PortableEstimate/searchMbParts";
     }
 
     @RequestMapping("/ramParts")
     public String ramParts() {
-        return "Estimate/searchRamParts";
+        return "PortableEstimate/searchRamParts";
     }
 
     @RequestMapping("/powerParts")
     public String powerParts() {
-        return "Estimate/searchPowerParts";
+        return "PortableEstimate/searchPowerParts";
     }
 
     @RequestMapping("/storageParts")
     public String stoParts() {
-        return "Estimate/searchStorageParts";
+        return "PortableEstimate/searchStorageParts";
     }
 
     @RequestMapping("/gpuParts")
     public String gpuParts() {
-        return "Estimate/searchGpuParts";
+        return "PortableEstimate/searchGpuParts";
     }
 
-    @GetMapping("/getEstimate")
-        public ComEstimateVO getSessionEstimateValue(HttpSession session) {
-            if(session.getAttribute("comEstimate") != null) {
-                ComEstimateVO vo = (ComEstimateVO) session.getAttribute("comEstimate");
-                return  vo;
-            }
-            return null;
-    }
+
 }

@@ -248,6 +248,12 @@ public class MainController {
 
     @RequestMapping("/index")
     public String mainPage(HttpSession session) {
+        session.setAttribute("userID", "dldi1021");
+        if(session.getAttribute("comEstimate") == null ) {
+            ComEstimateVO comEstimateVO = new ComEstimateVO();
+            comEstimateVO.setUserID(session.getAttribute("userID").toString());
+            session.setAttribute("comEstimate", comEstimateVO);
+        }
         return "index";
     }
 

@@ -29,27 +29,27 @@
                     <tbody>
                     <th:block th:each="vo : ${bbsList}">
                         <tr>
-                            <td rowspan="5">Image</td>
-                            <td colspan="1" th:text="${vo.bbsTitle}"></td>
-                            <td colspan="1" th:text="${vo.writeDate}"></td>
-                            <td colspan="1" th:text="${vo.updateDate}"></td>
-                            <td colspan="1" th:text="${vo.views}"></td>
+                            <td class="tg-0pky" rowspan="5">이미지</td>
+                            <td class="tg-0lax" th:text="${vo.bbsTitle}">제목</td>
+                            <td class="tg-0lax" th:text="${vo.writeDate}">작성일</td>
+                            <td class="tg-0lax" th:text="${vo.updateDate}">수정일</td>
+                            <td class="tg-0lax" th:text="${vo.views}">조회수</td>
                         </tr>
                         <tr>
-                            <td text-align="center" rowspan="4" colspan="4" th:text="${vo.bbsContent}"></td>
+                            <td class="tg-0lax" colspan="4" rowspan="4" th:text="${vo.bbsContent}"></td>
                         </tr>
                         <tr>
-                            <td colspan="4"></td>
                         </tr>
                         <tr>
-                            <td colspan="4"></td>
                         </tr>
                         <tr>
-                            <td colspan="4"></td>
                         </tr>
                     </th:block>
                     </tbody>
                 </table>
+                <a  href="/bbs/write">
+                    <button>작성</button>
+                </a>
             </div>
         </div>
     </div>

@@ -31,6 +31,7 @@ public class ComEstimateService {
             comEstimateRepository.save(vo);
             return 2;
         }
+
         if(comEstimateRepository.findbyUserID(vo.getUserID()).size() <= 3) { //최대 견적 개수 3개 이하에서만 새로 생성
             comEstimateRepository.save(vo);
             return 1; // 정상 저장

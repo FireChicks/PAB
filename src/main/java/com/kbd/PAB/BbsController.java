@@ -162,21 +162,27 @@ public class BbsController {
     }
 
     @RequestMapping("/write")
-    public String writeBbs(@RequestParam(name = "estimateID") int estimateID, HttpSession session, Model model) {
+    public String writeBbs(@RequestParam(name = "estimateID", defaultValue = "0") int estimateID, HttpSession session, Model model) {
         if(session.getAttribute("userID") == null) {
             model.addAttribute("actionNotice","먼저 로그인해주시기 바랍니다.");
             return "index";
         }
 
         String userID = session.getAttribute("userID").toString();
-        if(!comEstimateService.isUserPosEstimate(estimateID, userID)) { //견적 소유 확인
-            model.addAttribute("actionNotice","당신이 소유하고 있는 견적이 아닙니다.");
-            return "index";
-        }
+        if(estimateID != 0) {
+            if (!comEstimateService.isUserPosEstimate(estimateID, userID)) { //견적 소유 확인
+                model.addAttribute("actionNotice", "당신이 소유하고 있는 견적이 아닙니다.");
+                return "index";
+            }
 
-        ComEstimateVO comEstimateVO = comEstimateService.findByEstimateID(estimateID);
-        session.setAttribute("writeEstimate", comEstimateVO);
-        return "bbs/bbsWrite";
+            ComEstimateVO comEstimateVO = comEstimateService.findByEstimateID(estimateID);
+            session.setAttribute("writeEstimate", comEstimateVO);
+            return "bbs/bbsWrite";
+        } else {
+            ComEstimateVO comEstimateVO = new ComEstimateVO();
+            session.setAttribute("writeEstimate", comEstimateVO);
+            return "bbs/bbsWrite";
+        }
     }
 
     @RequestMapping("/update")
@@ -209,7 +215,7 @@ public class BbsController {
             BbsVO vo = new BbsVO(bbsTitle, bbsContent, Bvo.getComEstimateID());
             bbsService.writeBbs(vo);
             model.addAttribute("actionNotice","성공적으로 글을 저장했습니다.");
-            return "bbs/bbsList";
+            return "redirect:/bbs";
         }
         model.addAttribute("actionNotice","저장에 실패했습니다.");
         return "bbs/bbsWrite";
