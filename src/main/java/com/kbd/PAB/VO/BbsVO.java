@@ -1,6 +1,7 @@
 package com.kbd.PAB.VO;
 
 import jakarta.persistence.*;
+import org.springframework.data.domain.Page;
 
 import java.util.Date;
 
@@ -105,4 +106,6 @@ public class BbsVO {
     public void setViews(int views) {
         this.views = views;
     }
+
+
 }

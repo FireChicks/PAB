@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -47,6 +47,18 @@
                     </th:block>
                     </tbody>
                 </table>
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                        <li th:if="${page != 0}" class="page-item"><a class="page-link" th:href="@{/bbs(page=${(page - 1)})}">Previous</a></li>
+                        <th:block th:each="num : ${#numbers.sequence(pageInfo.startPageNum, pageInfo.endPageNum)}">
+                            <li th:classappend="${num == page} ? 'page-item active' : 'page-item'">
+                                <a class="page-link" th:href="@{/bbs(page=${num})}" th:text="${num + 1}"></a>
+                            </li>
+                        </th:block>
+                        <li th:if="${page != pageInfo.maxPageSize}" class="page-item"><a class="page-link" th:href="@{/bbs(page=${(page + 1)})}">Next</a></li>
+                    </ul>
+                </nav>
+
                 <a  href="/bbs/write">
                     <button>작성</button>
                 </a>

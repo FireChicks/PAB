@@ -1,5 +1,6 @@
 package com.kbd.PAB;
 
+import com.kbd.PAB.Nor.PageInfo;
 import com.kbd.PAB.Service.*;
 import com.kbd.PAB.VO.BbsEstimateVO;
 import com.kbd.PAB.VO.BbsVO;
@@ -8,6 +9,9 @@ import com.kbd.PAB.VO.UserVO;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,9 +46,14 @@ public class BbsController {
 
 
     @RequestMapping("")
-    public String bbs(HttpSession session, Model model) {
-        List<BbsVO> vos = bbsService.readAllBbs();
+    public String bbs(HttpSession session, Model model, @RequestParam(defaultValue = "0")int page, @RequestParam(defaultValue = "5")int pageSize) {
+        PageRequest pageRequest = PageRequest.of(page, 5, Sort.by("writeDate").descending());
+        Page<BbsVO> vos = bbsService.findByPageBbs(pageRequest);
+        PageInfo pageInfo = new PageInfo(page, (vos.getTotalPages() - 1));
+
         model.addAttribute("bbsList", vos);
+        model.addAttribute("page", page);
+        model.addAttribute("pageInfo", pageInfo);
         return "bbs/bbsList";
     }
 

@@ -4,6 +4,8 @@ package com.kbd.PAB.Service;
 import com.kbd.PAB.Repository.BbsRepository;
 import com.kbd.PAB.VO.BbsVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
@@ -34,6 +36,10 @@ public class BbsService {
         }
     }
 
+    public Page<BbsVO> findByPageBbs(Pageable pageable) {
+        return bbsRepository.findByPage(pageable);
+    }
+
     public List<BbsVO> readAllBbs() {
         List<BbsVO> vos = bbsRepository.findAll();
         return vos;
@@ -52,6 +58,20 @@ public class BbsService {
     public BbsVO isRead(BbsVO vo) {
         vo.setViews(vo.getViews() + 1);
         return vo;
+    }
+
+    public int countBbs() {
+        return Long.valueOf(bbsRepository.count()).intValue(); // count는 long 타입으로 반환 이를 int로 형변환
+    }
+
+    public int pageSize() {
+        int maxCount = countBbs();
+        int pageSize = (maxCount - 1) / 10;
+
+        if (pageSize > 0){
+            pageSize = 1;
+        }
+        return pageSize;
     }
 
 }
