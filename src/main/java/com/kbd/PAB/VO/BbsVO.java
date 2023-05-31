@@ -19,6 +19,9 @@ public class BbsVO {
     @Column(name = "bbs_content", columnDefinition = "VARCHAR(3000)")
     private String bbsContent;
 
+    @Column(name = "bbs_writer", columnDefinition = "VARCHAR(20)")
+    private String bbsWriter;
+
     @Column(name = "write_date", columnDefinition = "timestamp")
     private Date writeDate;
 
@@ -36,10 +39,11 @@ public class BbsVO {
     public BbsVO() {
     }
 
-    public BbsVO(String bbsTitle, String bbsContent, int estimateID) {
+    public BbsVO(String bbsTitle, String bbsContent, int estimateID, String bbsWriter) {
         this.bbsTitle = bbsTitle;
         this.bbsContent = bbsContent;
         this.bbsEstimateID = estimateID;
+        this.bbsWriter = bbsWriter;
     }
 
 
@@ -65,6 +69,14 @@ public class BbsVO {
 
     public void setBbsContent(String bbsContent) {
         this.bbsContent = bbsContent;
+    }
+
+    public String getBbsWriter() {
+        return bbsWriter;
+    }
+
+    public void setBbsWriter(String bbsWriter) {
+        this.bbsWriter = bbsWriter;
     }
 
     public Date getWriteDate() {

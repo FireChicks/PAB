@@ -17,4 +17,13 @@ public interface BbsRepository extends JpaRepository <BbsVO, Integer> {
     @Query("SELECT b FROM bbs b")
     Page<BbsVO> findByPage(Pageable pageable);
 
+    @Query("SELECT b FROM bbs b WHERE b.bbsTitle LIKE %:searchText%")
+    Page<BbsVO> findByBbsTitlePage(Pageable pageable, @Param("searchText") String searchText);
+
+    @Query("SELECT b FROM bbs b WHERE b.bbsContent LIKE %:searchText%")
+    Page<BbsVO> findByBbsContentPage(Pageable pageable, @Param("searchText") String searchText);
+
+    @Query("SELECT b FROM bbs b WHERE b.bbsWriter LIKE %:searchText%")
+    Page<BbsVO> findByBbsWriterPage(Pageable pageable, @Param("searchText") String searchText);
+
 }

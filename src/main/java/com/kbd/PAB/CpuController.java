@@ -2,6 +2,7 @@ package com.kbd.PAB;
 
 
 import com.kbd.PAB.Service.*;
+import com.kbd.PAB.VO.ComVO;
 import com.kbd.PAB.VO.CpuVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,7 @@ public class CpuController {
 
     @Autowired
     private CpuService cpuService;
+
 
     @GetMapping
     public List<CpuVO> getAllCpus(@RequestParam(name = "page", defaultValue = "1")int pageNumber) {
@@ -44,5 +46,7 @@ public class CpuController {
     public List<String> getSocketCategory() {
         return cpuService.getDistinctSocket();
     }
+
+
 
 }

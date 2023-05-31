@@ -1,26 +1,20 @@
 package com.kbd.PAB;
 
 import com.kbd.PAB.Nor.PageInfo;
+import com.kbd.PAB.Nor.Searchable;
 import com.kbd.PAB.Service.*;
-import com.kbd.PAB.VO.BbsEstimateVO;
-import com.kbd.PAB.VO.BbsVO;
-import com.kbd.PAB.VO.ComEstimateVO;
-import com.kbd.PAB.VO.UserVO;
+import com.kbd.PAB.VO.*;
 import jakarta.servlet.http.HttpSession;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.io.IOException;
-import java.util.Base64;
 import java.util.List;
 
 
@@ -36,6 +30,9 @@ public class BbsController {
     private ComEstimateService comEstimateService;
 
     @Autowired
+    private ComService comService;
+
+    @Autowired
     private CpuService cpuService;
 
     @Autowired
@@ -46,15 +43,25 @@ public class BbsController {
 
 
     @RequestMapping("")
-    public String bbs(HttpSession session, Model model, @RequestParam(defaultValue = "0")int page, @RequestParam(defaultValue = "5")int pageSize) {
-        PageRequest pageRequest = PageRequest.of(page, 5, Sort.by("writeDate").descending());
-        Page<BbsVO> vos = bbsService.findByPageBbs(pageRequest);
-        PageInfo pageInfo = new PageInfo(page, (vos.getTotalPages() - 1));
+    public String bbs(HttpSession session, Model model,
+                        @RequestParam(defaultValue = "0")    int page,
+                        @RequestParam(defaultValue = "5")    int pageSize,
+                        @RequestParam(defaultValue = "title")String searchCategory,
+                        @RequestParam(defaultValue = "")     String searchText) {
+
+        PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.by("writeDate").descending());
+        Searchable  searchable  = new Searchable(searchCategory, searchText);
+
+        Page<BbsVO> vos = bbsService.findByPageBbs(pageRequest, searchable);
+        PageInfo pageInfo = new PageInfo(page, (vos.getTotalPages() - 1)); //페이징 정보 저장
 
         model.addAttribute("bbsList", vos);
+        model.addAttribute("searchable", searchable);
         model.addAttribute("page", page);
-        model.addAttribute("pageInfo", pageInfo);
+        model.addAttribute("pageInfo", pageInfo); //페이지 개수 나누기 위한 정보 전송
+        model.addAttribute("pageSize", pageSize);
         return "bbs/bbsList";
+
     }
 
     @RequestMapping("/updateEstimate")
@@ -217,11 +224,12 @@ public class BbsController {
             model.addAttribute("actionNotice","제목과 글을 작성해주시기 바랍니다.");
             return "bbs/bbsWrite";
         }
+
         ComEstimateVO cvo = (ComEstimateVO) session.getAttribute("writeEstimate");
         BbsEstimateVO Bvo = new BbsEstimateVO(cvo.getUserID(),cvo.getCpuName(),cvo.getMainBoard(), cvo.getRam(), cvo.getStorage(), cvo.getPower(), cvo.getGpu());
         Bvo.setComEstimateID(bbsEstimateService.findMaxBbs() + 1);
         if(bbsEstimateService.saveEstimate(Bvo) == 1) {
-            BbsVO vo = new BbsVO(bbsTitle, bbsContent, Bvo.getComEstimateID());
+            BbsVO vo = new BbsVO(bbsTitle, bbsContent, Bvo.getComEstimateID(), session.getAttribute("userID").toString());
             bbsService.writeBbs(vo);
             model.addAttribute("actionNotice","성공적으로 글을 저장했습니다.");
             return "redirect:/bbs";
@@ -229,6 +237,8 @@ public class BbsController {
         model.addAttribute("actionNotice","저장에 실패했습니다.");
         return "bbs/bbsWrite";
     }
+
+
 
     @RequestMapping("/cpuParts")
     public String cpuParts() {
@@ -259,6 +269,8 @@ public class BbsController {
     public String gpuParts() {
         return "bbs/Estimate/searchGpuParts";
     }
+
+
 
 
 

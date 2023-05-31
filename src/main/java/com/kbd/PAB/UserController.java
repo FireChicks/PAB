@@ -6,10 +6,12 @@ import com.kbd.PAB.VO.UserVO;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -88,9 +90,12 @@ public class UserController {
         return "myPage";
     }
 
-
-
-
+    @RequestMapping(value = "/user/getUserProfile", produces = MediaType.TEXT_PLAIN_VALUE)
+    @ResponseBody
+    public String encodeUserProfile(@RequestParam(name = "userID")String userID) {
+        String encodeString =  Base64.getEncoder().encodeToString(userService.getUserProfile(userID));
+        return encodeString;
+    }
 
 }
 

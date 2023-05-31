@@ -17,5 +17,7 @@ public interface UserRepository extends JpaRepository <UserVO, String> {
     @Query("SELECT u FROM user u WHERE u.userName = :userName")
     List<UserVO> isUserNameValid(@Param("userName") String userName);
 
+    @Query("SELECT u.userProfile FROM user u WHERE u.userID = :userID")
+    byte[] getUserProfile(@Param("userID") String userID);
 
 }

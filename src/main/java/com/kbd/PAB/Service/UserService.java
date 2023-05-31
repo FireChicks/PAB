@@ -38,9 +38,9 @@ public class UserService {
     public int isValidID(String userID) { // 1 정상 반환, 0 ID/PW 불일치, -1 예상하지 못한 오류
         Optional<UserVO> userVOs = userRepository.findById(userID);
         if (userVOs.isPresent()) {
-                return 1;
+                return 0;
         }
-        return 0;
+        return 1;
     }
 
     public int isValidUserName(String userName) {
@@ -59,6 +59,11 @@ public class UserService {
     public UserVO findUser(String userID) {
         Optional<UserVO> userVO = userRepository.findById(userID);
         return userVO.get();
+    }
+
+    public byte[] getUserProfile(String userID) {
+        byte[] profile = userRepository.getUserProfile(userID);
+        return profile;
     }
 
 }

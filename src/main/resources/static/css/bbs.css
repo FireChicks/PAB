@@ -1,0 +1,81 @@
+    .containers {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .left-content {
+        align-items: center;
+        justify-content: flex-start;
+        width: 20%;
+    }
+
+    .center-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50%;
+    }
+
+    .right-content {
+        display: flex;
+        justify-content: flex-end;
+        width: 30%;
+    }
+
+    @media (max-width: 768px) {
+        .containers {
+            flex-direction: column;
+        }
+
+        .left-content,
+        .center-content,
+        .right-content {
+            width: 100%;
+            margin-bottom: 20px;
+            justify-content: flex-start;
+        }
+    }
+    .expanded {
+        height: 300px;
+    }
+
+    .content-container {
+        text-align: left;
+    }
+
+    .comments-container {
+      text-align: right;
+      width:100%;
+    }
+
+    .timezone {
+      font-size: smaller;
+      color: gray;
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .writer {
+      font-weight: bold;
+      font-size:  large;
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .userProfileImage{
+        display: inline-flex;
+        align-items: center;
+        flex-wrap: wrap;
+        width:100%;
+        height:75px;
+    }
+
+    .bbsTitle{
+        font-weight: bold;
+    }
+
+
+
+

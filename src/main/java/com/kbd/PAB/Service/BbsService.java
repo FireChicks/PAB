@@ -1,6 +1,7 @@
 package com.kbd.PAB.Service;
 
 
+import com.kbd.PAB.Nor.Searchable;
 import com.kbd.PAB.Repository.BbsRepository;
 import com.kbd.PAB.VO.BbsVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +37,17 @@ public class BbsService {
         }
     }
 
-    public Page<BbsVO> findByPageBbs(Pageable pageable) {
-        return bbsRepository.findByPage(pageable);
+    public Page<BbsVO> findByPageBbs(Pageable pageable, Searchable searchable) {
+        String category = searchable.getSearchCategory();
+        if(category.equals("bbsTitle")){
+            return bbsRepository.findByBbsTitlePage(pageable, searchable.getSearchText());
+        } else if(category.equals("bbsContent")){
+            return bbsRepository.findByBbsContentPage(pageable, searchable.getSearchText());
+        } else if(category.equals("bbsWriter")) {
+            return bbsRepository.findByBbsWriterPage(pageable, searchable.getSearchText());
+        } else {
+            return bbsRepository.findByPage(pageable);
+        }
     }
 
     public List<BbsVO> readAllBbs() {
