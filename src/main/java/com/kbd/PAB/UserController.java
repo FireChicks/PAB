@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 
 import java.io.IOException;
@@ -35,7 +36,7 @@ public class UserController {
             ComEstimateVO comEstimateVO = new ComEstimateVO();
             comEstimateVO.setUserID(session.getAttribute("userID").toString());
             session.setAttribute("comEstimate", comEstimateVO);
-            return "index";
+            return "redirect:/index";
         } else if (isLoginSuccess == 0) {
             model.addAttribute("actionNotice","ID나 PW가 불일치합니다.");
             return "/login";
@@ -49,11 +50,11 @@ public class UserController {
     @RequestMapping("/logoutAction")
     public String logOutAction(HttpSession session) {
         session.invalidate();
-        return "index";
+        return "redirect:/index";
     }
 
     @RequestMapping("/joinAction")
-    public String joinAction(Model model, @RequestParam(name = "userID")String userID,
+    public String joinAction(Model model, RedirectAttributes rttr, @RequestParam(name = "userID")String userID,
                              @RequestParam(name = "userPW")String userPW,
                              @RequestParam(name = "userName")String userName,
                              @RequestParam(name = "file") MultipartFile file) throws IOException {
@@ -73,8 +74,8 @@ public class UserController {
         model.addAttribute("actionNotice","name이 유효하지 않습니다.");
         return "/join";
     }
-        model.addAttribute("actionNotice","성공적으로 회원가입 완료했습니다.");
-    return "index";
+        rttr.addAttribute("actionNotice","성공적으로 회원가입 완료했습니다.");
+    return "redirect:/index";
     }
 
     @RequestMapping("/myPage")
@@ -95,6 +96,25 @@ public class UserController {
     public String encodeUserProfile(@RequestParam(name = "userID")String userID) {
         String encodeString =  Base64.getEncoder().encodeToString(userService.getUserProfile(userID));
         return encodeString;
+    }
+
+    @RequestMapping("/imgCngAction")
+    public String profileChangeAction(Model model, HttpSession session, @RequestParam(name = "file") MultipartFile file) throws IOException{
+        if(session.getAttribute("userID") == null) {
+            return "index";
+        }
+        byte[] bytes = IOUtils.toByteArray(file.getInputStream());
+        String userID = session.getAttribute("userID").toString();
+        UserVO userVO = userService.findUser(userID);
+        userVO.setUserProfile(bytes);
+
+        userService.join(userVO);
+
+        String encodedString = Base64.getEncoder().encodeToString(userVO.getUserProfile());
+        model.addAttribute("user", userVO);
+        model.addAttribute("userProfile", encodedString);
+        model.addAttribute("actionNotice","성공적으로 프로필 이미지를 수정 완료했습니다.");
+        return "/myPage";
     }
 
 }

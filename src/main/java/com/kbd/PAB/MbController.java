@@ -46,4 +46,9 @@ public class MbController {
         return mbService.getDistinctSocket();
     }
 
+    @GetMapping("/get")
+    public MbVO getMb(@RequestParam(name = "mbID")int mbID) {
+        return mbService.getMbByID(mbID);
+    }
+
 }

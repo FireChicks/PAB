@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/carousel/">
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js" integrity="sha384-zYPOMqeu1DAVkHiLqWBUTcbYfZ8osu1Nd6Z89ify25QV9guujx43ITvfi12/QExE" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js" integrity="sha384-Y4oOpwW3duJdCWv5ly8SCFYWqFDsfob/3GkgExXKV4idmbt98QcxXYs9UoXAB7BZ" crossorigin="anonymous"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<header data-bs-theme="dark" th:replace="~{mainNav.html :: nav}"> </header>
+<div class="container">
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    function getQueryVariable(variable) {
+        var query = window.location.search.substring(1);
+        var vars = query.split('&');
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split('=');
+            if (decodeURIComponent(pair[0]) === variable) {
+                return decodeURIComponent(pair[1]);
+            }
+        }
+        return null;
+    }
+
+    // 램 ID 값을 추출하여 JavaScript 변수에 저장
+    var ramID = getQueryVariable('ramID');
+
+    // 추출한 램 ID 값을 활용하여 필요한 작업을 수행
+    if (ramID !== null) {
+        console.log('램 ID:', ramID);
+        // ...
+    } else {
+        console.log('램 ID를 찾을 수 없습니다.');
+    }
+
+    axios.get('/ram/get', {
+        params: {
+            ramID: ramID
+        }
+    })
+    .then(function (response) {
+        // 성공적인 응답을 처리하고 뷰를 채웁니다.
+        var ramData = response.data;
+
+        // 램 정보 테이블 생성
+        var table = document.createElement('table');
+        table.className = 'table';
+
+        // 테이블 헤더 행 생성
+        var thead = document.createElement('thead');
+        var headerRow = document.createElement('tr');
+        var headers = ['램 이름', '브랜드', '램 용량', '램 세대', '램 클럭', '램 정보'];
+
+        headers.forEach(function (headerText) {
+            var header = document.createElement('th');
+            header.scope = 'col';
+            header.textContent = headerText;
+            headerRow.appendChild(header);
+        });
+
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        // 테이블 본문 생성
+        var tbody = document.createElement('tbody');
+
+        var ram = ramData;
+
+        // Amazon 이미지 행 생성
+        var imgRow = document.createElement('tr');
+        var imgCell = document.createElement('td');
+        imgCell.colSpan = headers.length;
+        var imgElement = document.createElement('img');
+        imgElement.src = ram.amazon_img_link;
+        imgElement.style.width = '200px';
+        imgElement.style.height = '200px';
+        imgCell.appendChild(imgElement);
+        imgRow.appendChild(imgCell);
+        tbody.appendChild(imgRow);
+
+        // 클릭 가능한 링크가 있는 램 이름 행 생성
+        var ramNameRow = document.createElement('tr');
+        var ramNameCell = document.createElement('td');
+        var ramNameLink = document.createElement('a');
+        ramNameLink.href = ram.amazonLink;
+        ramNameLink.textContent = ram.ramName;
+        ramNameCell.appendChild(ramNameLink);
+        ramNameCell.colSpan = headers.length;
+        ramNameRow.appendChild(ramNameCell);
+        tbody.appendChild(ramNameRow);
+
+        // 램 정보 행 생성
+        Object.keys(ram).forEach(function (key) {
+            if (key !== 'ramName' && key !== 'amazonLink' && key !== 'amazon_img_link') {
+                var infoRow = document.createElement('tr');
+                var infoLabelCell = document.createElement('td');
+                var infoValueCell = document.createElement('td');
+                infoLabelCell.textContent = key;
+                infoValueCell.textContent = ram[key];
+                infoRow.appendChild(infoLabelCell);
+                infoRow.appendChild(infoValueCell);
+                tbody.appendChild(infoRow);
+            }
+        });
+
+        table.appendChild(tbody);
+
+        // HTML 문서에 테이블 추가
+        var container = document.querySelector('.container');
+        container.appendChild(table);
+    })
+    .catch(function (error) {
+        // 오류 처리
+        console.error('데이터를 가져오는 동안 오류가 발생했습니다:', error);
+    });
+</script>
+
+</body>
+</html>

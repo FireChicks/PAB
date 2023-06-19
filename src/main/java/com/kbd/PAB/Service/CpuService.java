@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -62,6 +63,14 @@ public class CpuService {
         String modifiedCpuName = extractedCpuName.toString().trim();
 
         return cpusRepository.findbyCPUName(modifiedCpuName);
+    }
+
+    public CpuVO getCpuByID(int cpuID) {
+        Optional<CpuVO> vo = cpusRepository.findById(cpuID);
+        if(vo.isPresent()) {
+            return vo.get();
+        }
+        return null;
     }
 
 }

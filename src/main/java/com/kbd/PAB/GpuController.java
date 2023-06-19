@@ -40,4 +40,9 @@ public class GpuController {
         return gpuService.getDistinctBrand();
     }
 
+    @GetMapping("/get")
+    public GpuVO getGpu(@RequestParam(name = "gpuID")int gpuID) {
+        return gpuService.getGpuByID(gpuID);
+    }
+
 }

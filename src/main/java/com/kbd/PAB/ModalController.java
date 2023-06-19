@@ -10,18 +10,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.ArrayList;
 import java.util.List;
 
 
 @Controller
-@RequestMapping("/bbs")
-public class BbsController {
+@RequestMapping("/modal")
+public class ModalController {
 
     @Autowired
     private BbsService bbsService;
@@ -51,42 +55,31 @@ public class BbsController {
     @Autowired
     private RamService ramService;
 
-
-    @RequestMapping("")
-    public String bbs(HttpSession session, Model model,
-                        @RequestParam(defaultValue = "0")    int page,
-                        @RequestParam(defaultValue = "5")    int pageSize,
-                        @RequestParam(defaultValue = "bbsTitle")String searchCategory,
-                        @RequestParam(defaultValue = "")     String searchText) {
-
-        if(session.getAttribute("userID") != null) {
-            model.addAttribute("userID", session.getAttribute("userID").toString());
-        }
-
-        PageRequest pageRequest = PageRequest.of(page, pageSize, Sort.by("writeDate").descending());
-        Searchable  searchable  = new Searchable(searchCategory, searchText);
-
-        Page<BbsVO> vos = bbsService.findByPageBbs(pageRequest, searchable);
-        PageInfo pageInfo = new PageInfo(page, (vos.getTotalPages() - 1)); //페이징 정보 저장
-
-        model.addAttribute("bbsList", vos);
-        model.addAttribute("searchable", searchable);
-        model.addAttribute("page", page);
-        model.addAttribute("pageInfo", pageInfo); //페이지 개수 나누기 위한 정보 전송
-        model.addAttribute("pageSize", pageSize);
-        return "bbs/bbsList";
-
+    @RequestMapping("/cpuView")
+    public String cpuView(Model model,@RequestParam(name="cpuID")int cpuID){
+        return "modal/partsView/cpuView";
     }
 
-    @RequestMapping("/updateEstimate")
-    public String updateEstimate(RedirectAttributes rttr, Model model, HttpSession session, @RequestParam(name = "info", defaultValue = "") String info, @RequestParam(name = "infoName", defaultValue = "none") String infoName, @RequestParam(name = "isForceAdd", defaultValue = "none") String isForceAdd) {
+    @RequestMapping("/bbsEstimate")
+    public String getModalBbsEstimate(Model model, @RequestParam(name="estimateID")int estimateID) {
+        BbsEstimateVO vo = bbsEstimateService.findByEstimateID(estimateID);
+        model.addAttribute("bbsEstimate", vo);
+        return "modal/estimate/modalBbsEstimate";
+    }
+
+    @RequestMapping("/addParts")
+    public String estimate(HttpServletRequest request, RedirectAttributes rttr, Model model, HttpSession session,
+                           @RequestParam(name = "info", defaultValue = "") String info,
+                           @RequestParam(name = "infoName", defaultValue = "none") String infoName,
+                           @RequestParam(name = "isForceAdd", defaultValue = "none") String isForceAdd) {
 
         if(session.getAttribute("userID") == null) {
-            model.addAttribute("actionNotice","먼저 로그인해주시기 바랍니다.");
+            rttr.addFlashAttribute("actionNotice","먼저 로그인해주시기 바랍니다.");
             return "index";
         }
+        String referer = request.getHeader("Referer"); // 이전 페이지 정보
 
-        ComEstimateVO comEstimateVO = (ComEstimateVO) session.getAttribute("writeEstimate");
+        ComEstimateVO comEstimateVO = (ComEstimateVO) session.getAttribute("comEstimate");
 
         if(infoName.equals("cpuName")) {
             if(comEstimateVO.getMainBoard() != null) { //메인보드와의 호환성 체크
@@ -94,18 +87,18 @@ public class BbsController {
                 String cpuSocket = cpuService.getCpuVOByCpuName(info).getCpu_socket();
 
                 if(mainBoardSocket.equals(cpuSocket)) { //소켓 일치
-                    model.addAttribute("actionNotice","성공적으로 CPU를 추가하였습니다.");
+                    rttr.addFlashAttribute("actionNotice","성공적으로 CPU를 추가하였습니다.");
                 } else {
                     if(!isForceAdd.equals("none")) { //소켓이 틀려도 추가할 시
                         comEstimateVO.setCpuName(info);
                         comEstimateVO.setMainBoard(null);
-                        session.setAttribute("writeEstimate", comEstimateVO);
-                        return "bbs/bbsWrite";
+                        session.setAttribute("comEstimate", comEstimateVO);
+                        return "redirect:" + referer;
                     }
                     rttr.addFlashAttribute("actionNotice", "cpu소켓과 메인보드 소켓이 일치하지 않습니다. 그럼에도 추가하시겠습니까? CPU 소켓: " + cpuSocket + ", 메인보드 CPU 소켓: " + mainBoardSocket +" 주의: 견적에 저장된 메인보드의 정보가 사라집니다.");
                     rttr.addFlashAttribute("cpuInfo", info);
                     rttr.addFlashAttribute("cpuInfoName", infoName);
-                    return "redirect:/bbs/cpuParts";
+                    return "redirect:/estimate/cpuParts";
                 }
             }
 
@@ -116,19 +109,19 @@ public class BbsController {
                 String cpuSocket = cpuService.getCpuVOByCpuName(comEstimateVO.getCpuName()).getCpu_socket();
 
                 if(mainBoardSocket.equals(cpuSocket)) { //소켓 일치
-                    model.addAttribute("actionNotice","성공적으로 메인보드를 추가하였습니다.");
+                    rttr.addFlashAttribute("actionNotice","성공적으로 메인보드를 추가하였습니다.");
                 } else {
                     if(!isForceAdd.equals("none")) { //소켓이 틀려도 추가할 시
                         comEstimateVO.setCpuName(null);
                         comEstimateVO.setRam(null);
                         comEstimateVO.setMainBoard(info);
-                        session.setAttribute("writeEstimate", comEstimateVO);
-                        return "bbs/bbsWrite";
+                        session.setAttribute("comEstimate", comEstimateVO);
+                        return "redirect:" + referer;
                     }
                     rttr.addFlashAttribute("actionNotice", "cpu소켓과 메인보드 소켓이 일치하지 않습니다. 그럼에도 추가하시겠습니까? CPU 소켓: " + cpuSocket + ", 메인보드 CPU 소켓: " + mainBoardSocket+" 주의: 견적에 저장된 CPU와 RAM의 정보가 사라집니다.");
                     rttr.addFlashAttribute("mbInfo", info);
                     rttr.addFlashAttribute("mbInfoName", infoName);
-                    return "redirect:/bbs/mbParts";
+                    return "redirect:/estimate/mbParts";
                 }
 
                 if(comEstimateVO.getRam() != null) { //Ram과의 호환성 체크
@@ -136,19 +129,19 @@ public class BbsController {
                     String ramGen = ramService.getRamByRamName(comEstimateVO.getRam()).getRamGen();
 
                     if(mainBoardRamGen.equals(ramGen)) { //소켓 일치
-                        model.addAttribute("actionNotice","성공적으로 메인보드를 추가하였습니다.");
+                        rttr.addFlashAttribute("actionNotice","성공적으로 메인보드를 추가하였습니다.");
                     } else {
                         if(!isForceAdd.equals("none")) { //소켓이 틀려도 추가할 시
                             comEstimateVO.setCpuName(null);
                             comEstimateVO.setRam(null);
                             comEstimateVO.setMainBoard(info);
-                            session.setAttribute("writeEstimate", comEstimateVO);
-                            return "bbs/bbsWrite";
+                            session.setAttribute("comEstimate", comEstimateVO);
+                             return "redirect:" + referer;
                         }
                         rttr.addFlashAttribute("actionNotice", "Ram세대와 메인보드 소켓이 일치하지 않습니다. 그럼에도 추가하시겠습니까? 메인보드 ram 세대: " +  mainBoardRamGen + ", ram 세대: " + ramGen +" 주의: 견적에 저장된 CPU와 RAM의 정보가 사라집니다.");
                         rttr.addFlashAttribute("mbInfo", info);
                         rttr.addFlashAttribute("mbInfoName", infoName);
-                        return "redirect:/bbs/mbParts";
+                        return "redirect:/estimate/mbParts";
                     }
                 }
             }
@@ -159,18 +152,18 @@ public class BbsController {
                 String ramGen = ramService.getRamByRamName(info).getRamGen();
 
                 if(mainBoardRamGen.equals(ramGen)) { //소켓 일치
-                    model.addAttribute("actionNotice","성공적으로 RAM을 추가하였습니다.");
+                    rttr.addFlashAttribute("actionNotice","성공적으로 RAM을 추가하였습니다.");
                 } else {
                     if(!isForceAdd.equals("none")) { //소켓이 틀려도 추가할 시
                         comEstimateVO.setRam(info);
                         comEstimateVO.setMainBoard(null);
-                        session.setAttribute("writeEstimate", comEstimateVO);
-                        return "bbs/bbsWrite";
+                        session.setAttribute("comEstimate", comEstimateVO);
+                         return "redirect:" + referer;
                     }
                     rttr.addFlashAttribute("actionNotice", "Ram세대와 메인보드 소켓이 일치하지 않습니다. 그럼에도 추가하시겠습니까? 메인보드 ram 세대: " +  mainBoardRamGen + ", ram 세대: " + ramGen+" 주의: 견적에 저장된 메인보드의 정보가 사라집니다.");
                     rttr.addFlashAttribute("ramInfo", info);
                     rttr.addFlashAttribute("ramInfoName", infoName);
-                    return "redirect:/bbs/ramParts";
+                    return "redirect:/estimate/ramParts";
                 }
             }
             comEstimateVO.setRam(info);
@@ -187,84 +180,91 @@ public class BbsController {
             comEstimateVO.setUserID(session.getAttribute("userID").toString());
         }
 
-        session.setAttribute("writeEstimate", comEstimateVO);
-        return "bbs/bbsWrite";
+        session.setAttribute("comEstimate", comEstimateVO);
+        rttr.addFlashAttribute("actionNotice", "성공적으로 추가가 완료되었습니다.");
+         return "redirect:" + referer;
     }
 
-    @RequestMapping("/write")
-    public String writeBbs(@RequestParam(name = "estimateID", defaultValue = "0") int estimateID, HttpSession session, Model model) {
-        if(session.getAttribute("userID") == null) {
-            model.addAttribute("actionNotice","먼저 로그인해주시기 바랍니다.");
-            return "index";
+    @PostMapping("/addEstimate")
+    @ResponseStatus(HttpStatus.OK)
+    public void processEstimate(HttpSession session, @RequestParam String cpuName, @RequestParam String mbName, @RequestParam String ramName, @RequestParam String stoName, @RequestParam String powName, @RequestParam String gpuName) {
+        ComEstimateVO vo = new ComEstimateVO();
+        if (cpuName != null && !cpuName.equals("")) {
+            vo.setCpuName(cpuName);
+        }
+        if (mbName != null && !mbName.equals("")) {
+            vo.setMainBoard(mbName);
+        }
+        if (ramName != null && !ramName.equals("")) {
+            vo.setRam(ramName);
+        }
+        if (stoName != null && !stoName.equals("")) {
+            vo.setStorage(stoName);
+        }
+        if (powName != null && !powName.equals("")) {
+            vo.setPower(powName);
+        }
+        if (gpuName != null && !gpuName.equals("")) {
+            vo.setGpu(gpuName);
         }
 
-        String userID = session.getAttribute("userID").toString();
-        if(estimateID != 0) {
-            if (!comEstimateService.isUserPosEstimate(estimateID, userID)) { //견적 소유 확인
-                model.addAttribute("actionNotice", "당신이 소유하고 있는 견적이 아닙니다.");
-                return "index";
-            }
-
-            ComEstimateVO comEstimateVO = comEstimateService.findByEstimateID(estimateID);
-            session.setAttribute("writeEstimate", comEstimateVO);
-            return "bbs/bbsWrite";
-        } else {
-            ComEstimateVO comEstimateVO = new ComEstimateVO();
-            session.setAttribute("writeEstimate", comEstimateVO);
-            return "bbs/bbsWrite";
-        }
+        session.setAttribute("comEstimate", vo);
     }
 
-    @RequestMapping("/update")
-    public String updateBbs(@RequestParam(name = "bbsID") int bbsID, HttpSession session, Model model) {
-        if(session.getAttribute("userID") == null) {
-            model.addAttribute("actionNotice","먼저 로그인해주시기 바랍니다.");
-            return "index";
-        }
-        BbsVO bbsVO = bbsService.readByBbsID(bbsID);
-        BbsEstimateVO comEstimateVO = bbsEstimateService.findByEstimateID(bbsVO.getBbsEstimateID());
-        session.setAttribute("bbsVO", bbsVO);
-        session.setAttribute("writeEstimate", comEstimateVO);
-        return "bbs/bbsWrite";
+    @RequestMapping("/addComByPart")
+    public String writeComByPart(@RequestParam("partID") int partID,
+                                 @RequestParam("partCategory") String partCategory,
+                                 @RequestParam("partName") String partName,
+                                 @RequestParam("partImgUrl") String partImgUrl,
+                                 @RequestParam("bbsID") String bbsID,
+                                 Model model) {
+        PartsVO partsVO = new PartsVO(partID, partCategory, partName, partImgUrl);
+
+        model.addAttribute("partsVO", partsVO);
+        model.addAttribute("bbsID", bbsID);
+        return "bbs/com/writeByPart";
     }
 
-    @RequestMapping("/writeAction")
-    public String writeBbsAction(@RequestParam(name = "bbsTitle") String bbsTitle,@RequestParam(name = "bbsContent") String bbsContent, HttpSession session, Model model) throws Exception {
-        if(session.getAttribute("userID") == null) {
-            model.addAttribute("actionNotice","먼저 로그인해주시기 바랍니다.");
-            return "index";
+    @RequestMapping("/allPartView")
+    public String getAllPart(Model model, int bbsID){
+        List<CpuVO> cpuVOS = cpuService.getAllCpus();
+        List<MbVO> mbVOs = mbService.getAllMbs();
+        List<RamVO> ramVos = ramService.getAllRamsVO();
+        List<StorageVO> storageVOS = stoService.getAllStos();
+        List<PowerVO> powerVos = powService.getAllPowerVos();
+        List<GpuVO> gpuVOS = gpuService.getAllGpus();
+
+        ArrayList<PartsVO> partsVOS = new ArrayList<PartsVO>();
+
+        for (CpuVO vo:cpuVOS) {
+            PartsVO pVO = new PartsVO(vo.getCpuID(), "cpu", vo.getCpuName(), vo.getAmazon_img_link());
+            partsVOS.add(pVO);
         }
-        if(bbsTitle == null || bbsTitle.equals("") || bbsContent == null || bbsContent.equals("")) {
-            model.addAttribute("actionNotice","제목과 글을 작성해주시기 바랍니다.");
-            return "bbs/bbsWrite";
+        for (MbVO vo:mbVOs) {
+            PartsVO pVO = new PartsVO(vo.getMbId(), "mb", vo.getMbName(), vo.getAmazon_img_link());
+            partsVOS.add(pVO);
+        }
+        for (RamVO vo: ramVos) {
+            PartsVO pVO = new PartsVO(vo.getRamId(), "ram", vo.getRamName(), vo.getAmazon_img_link());
+            partsVOS.add(pVO);
+        }
+        for (StorageVO vo: storageVOS) {
+            PartsVO pVO = new PartsVO(vo.getStoID(), "sto", vo.getStoName(), vo.getAmazon_img_link());
+            partsVOS.add(pVO);
+        }
+        for (PowerVO vo: powerVos) {
+            PartsVO pVO = new PartsVO(vo.getPowId(), "pow", vo.getPowName(), vo.getAmazon_img_link());
+            partsVOS.add(pVO);
+        }
+        for (GpuVO vo: gpuVOS) {
+            PartsVO pVO = new PartsVO(vo.getGpuId(), "gpu", vo.getGpuName(), vo.getAmazon_img_link());
+            partsVOS.add(pVO);
         }
 
-        ComEstimateVO cvo = (ComEstimateVO) session.getAttribute("writeEstimate");
-        BbsEstimateVO Bvo = new BbsEstimateVO(cvo.getUserID(),cvo.getCpuName(),cvo.getMainBoard(), cvo.getRam(), cvo.getStorage(), cvo.getPower(), cvo.getGpu());
-        Bvo.setComEstimateID(bbsEstimateService.findMaxBbs() + 1);
-        if(bbsEstimateService.saveEstimate(Bvo) == 1) {
-            BbsVO vo = new BbsVO(bbsTitle, bbsContent, Bvo.getComEstimateID(), session.getAttribute("userID").toString());
-            bbsService.writeBbs(vo);
-            model.addAttribute("actionNotice","성공적으로 글을 저장했습니다.");
-            return "redirect:/bbs";
-        }
-        model.addAttribute("actionNotice","저장에 실패했습니다.");
-        return "bbs/bbsWrite";
-    }
+        model.addAttribute("partVOS", partsVOS);
+        model.addAttribute("bbsID", bbsID);
 
-    @RequestMapping("/deleteBbs")
-    public String deleteBbs(HttpServletRequest request, Model model,
-                            @RequestParam(defaultValue = "0")    int page,
-                            @RequestParam(defaultValue = "5")    int pageSize,
-                            @RequestParam(defaultValue = "bbsTitle")String searchCategory,
-                            @RequestParam(defaultValue = "")     String searchText,
-                            int bbsID) {
-        bbsService.deleteBbs(bbsID);
-        request.setAttribute("page", page);
-        request.setAttribute("pageSize", pageSize);
-        request.setAttribute("searchCategory", searchCategory);
-        request.setAttribute("searchText", searchText);
-        return "forward:/bbs";
+        return "modal/partsView/allView";
     }
 
     @RequestMapping("/cpuParts")

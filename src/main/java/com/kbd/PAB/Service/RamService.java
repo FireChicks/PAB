@@ -2,6 +2,7 @@ package com.kbd.PAB.Service;
 
 import com.kbd.PAB.Crawling.ImgLinkCrawlingService;
 import com.kbd.PAB.Repository.RamRepository;
+import com.kbd.PAB.VO.CpuVO;
 import com.kbd.PAB.VO.GpuVO;
 import com.kbd.PAB.VO.MbVO;
 import com.kbd.PAB.VO.RamVO;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RamService {
@@ -57,5 +59,13 @@ public class RamService {
             }
         }
         insertCPU(ramVOS);
+    }
+
+    public RamVO getRamByID(int ramID) {
+        Optional<RamVO> vo = ramRepository.findById(ramID);
+        if(vo.isPresent()) {
+            return vo.get();
+        }
+        return null;
     }
 }

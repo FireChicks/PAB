@@ -45,4 +45,9 @@ public class StoController {
         return stoService.getDistinctType();
     }
 
+    @GetMapping("/get")
+    public StorageVO getSto(@RequestParam(name = "stoID")int stoID) {
+        return stoService.getStoByID(stoID);
+    }
+
 }

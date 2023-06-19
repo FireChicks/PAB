@@ -41,4 +41,9 @@ public class RamController {
         return ramService.getDistinctBrand();
     }
 
+    @GetMapping("/get")
+    public RamVO getRam(@RequestParam(name = "ramID")int ramID) {
+        return ramService.getRamByID(ramID);
+    }
+
 }

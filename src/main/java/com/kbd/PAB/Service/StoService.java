@@ -2,6 +2,7 @@ package com.kbd.PAB.Service;
 
 import com.kbd.PAB.Crawling.ImgLinkCrawlingService;
 import com.kbd.PAB.Repository.StoRepository;
+import com.kbd.PAB.VO.CpuVO;
 import com.kbd.PAB.VO.StorageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -65,5 +67,13 @@ public class StoService {
 
     public List<String> getDistinctType() {
         return stoRepository.findDistinctSocket();
+    }
+
+    public StorageVO getStoByID(int stoID) {
+        Optional<StorageVO> vo = stoRepository.findById(stoID);
+        if(vo.isPresent()) {
+            return vo.get();
+        }
+        return null;
     }
 }

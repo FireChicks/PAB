@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Parts View</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css">
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/js/bootstrap.min.js"></script>
+    <style>
+        .table-container {
+            margin: 20px;
+        }
+    </style>
+    <script th:inline="javascript">
+$(document).ready(function() {
+    // 검색 기능
+    $('#searchInput').on('keyup', function() {
+        var searchText = $(this).val().toLowerCase();
+        var selectedCategory = $('#categoryFilter').val().toLowerCase();
+        filterTable(searchText, selectedCategory);
+    });
+
+    // 카테고리 필터링
+    $('#categoryFilter').on('change', function() {
+        var searchText = $('#searchInput').val().toLowerCase();
+        var selectedCategory = $(this).val().toLowerCase();
+        filterTable(searchText, selectedCategory);
+    });
+
+    // 페이징 기능
+    function paginateTable() {
+        var visibleRows = $('#partsTable tbody tr:visible');
+        var numItems = visibleRows.length;
+        var numPages = Math.ceil(numItems / 10);
+
+        if (numPages <= 1) {
+            $('.pagination').addClass('d-none');
+        } else {
+            $('.pagination').removeClass('d-none');
+        }
+
+        var pagination = '';
+        for (var i = 1; i <= numPages; i++) {
+            pagination += '<li class="page-item"><a class="page-link" href="#">' + i + '</a></li>';
+        }
+        $('.pagination').html(pagination);
+
+        var currentPage = 0;
+        var itemsPerPage = 10;
+        showPage(currentPage);
+
+        $('.page-link').on('click', function(e) {
+            e.preventDefault();
+            currentPage = parseInt($(this).text()) - 1;
+            showPage(currentPage);
+        });
+
+        function showPage(page) {
+            var start = page * itemsPerPage;
+            var end = start + itemsPerPage;
+
+            visibleRows.hide().slice(start, end).show();
+        }
+    }
+
+    function filterTable(searchText, filterCategory) {
+        $('#partsTable tbody tr').each(function() {
+            var partCategory = $(this).find('td:nth-child(1)').text().toLowerCase();
+            var partName = $(this).find('td:nth-child(2)').text().toLowerCase();
+            if ((partCategory === filterCategory || filterCategory === '') && (partName.includes(searchText) || searchText === '')) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+
+        var visibleRows = $('#partsTable tbody tr:visible');
+        var noResultRow = '<tr id="noResultRow"><td colspan="4" class="text-center">검색 결과가 없습니다.</td></tr>';
+        if (visibleRows.length === 0) {
+            $('.pagination').addClass('d-none');
+            if ($('#noResultRow').length === 0) {
+                $('#partsTable tbody').append(noResultRow);
+            }
+        } else {
+            $('#noResultRow').remove();
+            paginateTable();
+        }
+    }
+
+    // 초기 로드 시 테이블 초기화
+    filterTable('', '');
+
+    // 카테고리 필터링 초기화
+    $('#categoryFilter').val('');
+
+   $('#partsTable').on('click', 'button', function() {
+  var row = $(this).closest('tr');
+  var partID = row.find('td:nth-child(5)').text();
+  var partCategory = row.find('td:nth-child(1)').text();
+  var partName = row.find('td:nth-child(2)').text();
+  var partImgUrl = row.find('img').attr('src');
+  var bbsID = /*[[${bbsID}]]*/ // Set the bbsID value accordingly
+
+  var url = '/modal/addComByPart?partID=' + encodeURIComponent(partID) +
+    '&partCategory=' + encodeURIComponent(partCategory) +
+    '&partName=' + encodeURIComponent(partName) +
+    '&partImgUrl=' + encodeURIComponent(partImgUrl) +
+    '&bbsID=' + encodeURIComponent(bbsID);
+
+  // Send an AJAX request to the server
+  $.ajax({
+    url: url,
+    type: 'GET',
+    success: function(response) {
+      // Update the content of the modal body with the response
+      $('.modal-body').html(response);
+
+      // Show the modal
+      $('#myModal').modal('show');
+    },
+    error: function() {
+      // Handle error, if any
+      $('.modal-body').html('<p>Error occurred while loading content.</p>');
+    }
+  });
+});
+
+
+});
+    </script>
+</head>
+<body>
+<div class="container">
+    <div class="table-container">
+        <div class="mb-3">
+            <label for="searchInput" class="form-label">검색:</label>
+            <input type="text" class="form-control" id="searchInput">
+        </div>
+        <div class="mb-3">
+            <label for="categoryFilter" class="form-label">카테고리:</label>
+            <select id="categoryFilter" class="form-select">
+                <option value="">전체</option>
+                <option value="cpu">CPU</option>
+                <option value="mb">메인보드</option>
+                <option value="ram">RAM</option>
+                <option value="sto">스토리지</option>
+                <option value="pow">파워</option>
+                <option value="gpu">그래픽 카드</option>
+            </select>
+        </div>
+        <table id="partsTable" class="table table-striped">
+            <thead>
+            <tr>
+                <th>카테고리</th>
+                <th>이름</th>
+                <th>이미지</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="partVO : ${partVOS}">
+                <tr data-category="${partVO.partCategory}">
+                    <td th:text="${partVO.partCategory}"></td>
+                    <td th:text="${partVO.partName}"></td>
+                    <td>
+                        <img th:src="${partVO.partImgUrl}" alt="이미지" width="100" height="100">
+                    </td>
+                    <td>
+                        <button>선택</button>
+                    </td>
+                    <td th:text="${partVO.partID}" style="display: none;"></td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+        <nav>
+            <ul class="pagination justify-content-center"></ul>
+        </nav>
+    </div>
+</div>
+</body>
+</html>

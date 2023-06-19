@@ -33,6 +33,10 @@ public class ComService {
         }
     }
 
+    public void deleteComment(int comID) {
+        comRepository.deleteById(comID);
+    }
+
 
     public List<ComVO> readByBbsID(int bbsID) {
         List<ComVO> cVO = comRepository.findByBbsIDCom(bbsID);

@@ -45,4 +45,9 @@ public class PowerController {
         return powService.getDistinctWatt();
     }
 
+    @GetMapping("/get")
+    public PowerVO getPow(@RequestParam(name = "powID")int powID) {
+        return powService.getPowerByID(powID);
+    }
+
 }

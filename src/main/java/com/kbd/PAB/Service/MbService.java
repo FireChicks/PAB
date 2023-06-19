@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MbService {
@@ -60,5 +61,13 @@ public class MbService {
             }
         }
         insertMb(mbVOS);
+    }
+
+    public MbVO getMbByID(int mbID) {
+        Optional<MbVO> vo = mbRepository.findById(mbID);
+        if(vo.isPresent()) {
+            return vo.get();
+        }
+        return null;
     }
 }

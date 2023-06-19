@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/carousel/">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js" integrity="sha384-zYPOMqeu1DAVkHiLqWBUTcbYfZ8osu1Nd6Z89ify25QV9guujx43ITvfi12/QExE" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js" integrity="sha384-Y4oOpwW3duJdCWv5ly8SCFYWqFDsfob/3GkgExXKV4idmbt98QcxXYs9UoXAB7BZ" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <style>
+        .infoBtn{
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+<script src="/js/bbs/modalEstimate.js"></script>
+<div class="container" id="content">
+    <div class="align-items-center">
+        <div class="col-md-12">
+            <table class="table table-striped table-hover">
+                <tr>
+                    <th>항목</th>
+                    <th>내용</th>
+                    <th></th>
+                </tr>
+
+                <!--CPU 부분-->
+                <tr th:if="${bbsEstimate.getCpuName() != null and bbsEstimate.getCpuName() != ''}"
+                    th:attr="data-cpu-name=${bbsEstimate.getCpuName()}"
+                    onclick="showCPUDropdown(this.getAttribute('data-cpu-name'))">
+                    <td>
+                        <span th:text="CPU"></span>
+                        <div class="dropdown-content" id="cpuInfoA"></div>
+                    </td>
+                    <td>
+                        <div>
+                            <span th:text="${bbsEstimate.getCpuName()}"></span>
+                            <div class="dropdown-content" id="cpuInfoB"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div><a id="cpuPrice">검색 결과 없음</a></div>
+                    </td>
+                    <td>
+                        <th:block th:if="${bbsEstimate.getCpuName() != null and bbsEstimate.getCpuName() != ''}">
+                            <button type="button" class="btn btn-primary infoBtn" th:attr="data-cpu-name=${bbsEstimate.getCpuName()}" onclick="moveToCpuInfo(this.getAttribute('data-cpu-name'))">자세히</button>
+                        </th:block>
+                    </td>
+                </tr>
+
+                <tr th:if="${bbsEstimate.getCpuName() == null or bbsEstimate.getCpuName() == ''}">
+                    <td>CPU</td>
+                    <td colspan="3">부품 정보가 없음</td>
+                </tr>
+
+                <!--메인보드 부분-->
+                <tr th:if="${bbsEstimate.getMainBoard() != null and bbsEstimate.getMainBoard() != ''}"
+                    th:attr="data-mb-name=${bbsEstimate.getMainBoard()}"
+                    onclick="showMBDropdown(this.getAttribute('data-mb-name'))">
+                    <td>
+                        <span th:text="MainBoard"></span>
+                        <div class="dropdown-content" id="mbInfoA"></div>
+                    </td>
+                    <td>
+                        <div>
+                            <span th:text="${bbsEstimate.getMainBoard()}"></span>
+                            <div class="dropdown-content" id="mbInfoB"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div><a id="mbPrice">검색 결과 없음</a></div>
+                    </td>
+                    <td>
+                        <th:block th:if="${bbsEstimate.getMainBoard() != null and bbsEstimate.getMainBoard() != ''}">
+                            <button type="button" class="btn btn-primary infoBtn" th:attr="data-mb-name=${bbsEstimate.getMainBoard()}" onclick="moveToMbInfo(this.getAttribute('data-mb-name'))">자세히</button>
+                        </th:block>
+                    </td>
+                </tr>
+                <tr th:if="${bbsEstimate.getMainBoard() == null or bbsEstimate.getMainBoard() == ''}">
+                    <td>Mainboard</td>
+                    <td colspan="3">부품 정보가 없음</td>
+                </tr>
+
+                <!--RAM 부분-->
+                <tr th:if="${bbsEstimate.getRam() != null and bbsEstimate.getRam() != ''}"
+                    th:attr="data-ram-name=${bbsEstimate.getRam()}"
+                    onclick="showRAMDropdown(this.getAttribute('data-ram-name'))">
+                    <td>
+                        <span th:text="RAM"></span>
+                        <div class="dropdown-content" id="ramInfoA"></div>
+                    </td>
+                    <td>
+                        <div>
+                            <span th:text="${bbsEstimate.getRam()}"></span>
+                            <div class="dropdown-content" id="ramInfoB"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div><a id="ramPrice">검색 결과 없음</a></div>
+                    </td>
+                    <td>
+                        <th:block th:if="${bbsEstimate.getRam() != null and bbsEstimate.getRam() != ''}">
+                            <button type="button" class="btn btn-primary infoBtn"
+                                    th:attr="data-ram-name=${bbsEstimate.getRam()}"
+                                    onclick="moveToRamInfo(this.getAttribute('data-ram-name'))">자세히
+                            </button>
+                        </th:block>
+                    </td>
+                </tr>
+
+                <tr th:if="${bbsEstimate.getRam() == null or bbsEstimate.getRam() == ''}">
+                    <td>RAM</td>
+                    <td colspan="3">부품 정보가 없음</td>
+                </tr>
+
+                <!--Storage 부분-->
+                <tr th:if="${bbsEstimate.getStorage() != null and bbsEstimate.getStorage() != ''}"
+                    th:attr="data-storage-name=${bbsEstimate.getStorage()}"
+                    onclick="showSTODropdown(this.getAttribute('data-storage-name'))">
+                    <td>
+                        <span th:text="Storage"></span>
+                        <div class="dropdown-content" id="stoInfoA"></div>
+                    </td>
+                    <td>
+                        <div>
+                            <span th:text="${bbsEstimate.getStorage()}"></span>
+                            <div class="dropdown-content" id="stoInfoB"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div><a id="stoPrice">검색 결과 없음</a></div>
+                    </td>
+                    <td>
+                        <th:block th:if="${bbsEstimate.getStorage() != null and bbsEstimate.getStorage() != ''}">
+                            <button type="button" class="btn btn-primary infoBtn"
+                                    th:attr="data-sto-name=${bbsEstimate.getStorage()}"
+                                    onclick="moveToStoInfo(this.getAttribute('data-sto-name'))">자세히
+                            </button>
+                        </th:block>
+                    </td>
+                </tr>
+                <tr th:if="${bbsEstimate.getStorage() == null or bbsEstimate.getStorage() == ''}">
+                    <td>Storage</td>
+                    <td colspan="3">부품 정보가 없음</td>
+                </tr>
+
+                <!--Power 부분-->
+                <tr th:if="${bbsEstimate.getPower() != null and bbsEstimate.getPower() != ''}"
+                    th:attr="data-power-name=${bbsEstimate.getPower()}"
+                    onclick="showPOWDropdown(this.getAttribute('data-power-name'))">
+                    <td>
+                        <span th:text="Power"></span>
+                        <div class="dropdown-content" id="powInfoA"></div>
+                    </td>
+                    <td>
+                        <div>
+                            <span th:text="${bbsEstimate.getPower()}"></span>
+                            <div class="dropdown-content" id="powInfoB"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div><a id="powPrice">검색 결과 없음</a></div>
+                    </td>
+                    <td>
+                        <th:block th:if="${bbsEstimate.getPower() != null and bbsEstimate.getPower() != ''}">
+                            <button type="button" class="btn btn-primary infoBtn"
+                                    th:attr="data-pow-name=${bbsEstimate.getPower()}"
+                                    onclick="moveToPowInfo(this.getAttribute('data-pow-name'))">자세히
+                            </button>
+                        </th:block>
+                    </td>
+                </tr>
+                <tr th:if="${bbsEstimate.getPower() == null or bbsEstimate.getPower()== ''}">
+                    <td>Power</td>
+                    <td colspan="3">부품 정보가 없음</td>
+                </tr>
+
+                <!--GPU 부분-->
+                <tr th:if="${bbsEstimate.getGpu() != null and bbsEstimate.getGpu() != ''}"
+                    th:attr="data-gpu-name=${bbsEstimate.getGpu()}"
+                    onclick="showGPUDropdown(this.getAttribute('data-gpu-name'))">
+                    <td>
+                        <span th:text="GPU"></span>
+                        <div class="dropdown-content" id="gpuInfoA"></div>
+                    </td>
+                    <td>
+                        <div>
+                            <span th:text="${bbsEstimate.getGpu()}"></span>
+                            <div class="dropdown-content" id="gpuInfoB"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div><a id="gpuPrice">검색 결과 없음</a></div>
+                    </td>
+                    <td>
+                        <th:block th:if="${bbsEstimate.getGpu() != null and bbsEstimate.getGpu() != ''}">
+                            <button type="button" class="btn btn-primary infoBtn"
+                                    th:attr="data-gpu-name=${bbsEstimate.getGpu()}"
+                                    onclick="moveToGpuInfo(this.getAttribute('data-gpu-name'))">자세히
+                            </button>
+                        </th:block>
+                    </td>
+                </tr>
+                <tr th:if="${bbsEstimate.getGpu() == null or bbsEstimate.getGpu() == ''}">
+                    <td>GPU</td>
+                    <td colspan="3">부품 정보가 없음</td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="float:right;"><a id="allPrice"></a><a class="btn btn-primary" id="allEstimateAdd">전체 견적 추가</a>
+                    </td>
+                </tr>
+            </table>
+            <!--각 부품 가격 구하기 -->
+            <script th:inline="javascript">
+  var cpuName = /*[[${bbsEstimate.getCpuName()}]]*/;
+  var mbName = /*[[${bbsEstimate.getMainBoard()}]]*/;
+  var ramName = /*[[${bbsEstimate.getRam()}]]*/;
+  var stoName = /*[[${bbsEstimate.getStorage()}]]*/;
+  var powName = /*[[${bbsEstimate.getPower()}]]*/;
+  var gpuName = /*[[${bbsEstimate.getGpu()}]]*/;
+
+  var data = {
+      cpuName: cpuName,
+      mbName: mbName,
+      ramName: ramName,
+      stoName: stoName,
+      powName: powName,
+      gpuName: gpuName
+    };
+
+  var cpuPrice, mbPrice, ramPrice, stoPrice, powPrice, gpuPrice;
+  var allPrice = 0;
+  var allPriceElement = document.getElementById("allPrice");
+  var cpuPriceElement = document.getElementById("cpuPrice");
+  var mbPriceElement = document.getElementById("mbPrice");
+  var ramPriceElement = document.getElementById("ramPrice");
+  var stoPriceElement = document.getElementById("stoPrice");
+  var powPriceElement = document.getElementById("powPrice");
+  var gpuPriceElement = document.getElementById("gpuPrice");
+
+
+  async function calculateAllPrice() {
+    if (cpuName != null) {
+      cpuPrice = await getData(cpuName);
+      if (cpuPrice.lowestPrice === 10000000) {
+        cpuPrice.lowestPrice = 0;
+      } else {
+        cpuPriceElement.textContent = formatCurrency(cpuPrice.lowestPrice);
+        cpuPriceElement.href = cpuPrice.lowestPriceLink;
+      }
+      allPrice += parseFloat(cpuPrice.lowestPrice);
+    }
+    if (mbName != null) {
+      mbPrice = await getData(mbName);
+      if (mbPrice.lowestPrice === 10000000) {
+        mbPrice.lowestPrice = 0;
+      } else {
+        mbPriceElement.textContent = formatCurrency(mbPrice.lowestPrice);
+        mbPriceElement.href = mbPrice.lowestPriceLink;
+      }
+      allPrice += parseFloat(mbPrice.lowestPrice);
+    }
+    if (ramName != null) {
+      ramPrice = await getData(ramName);
+      if (ramPrice.lowestPrice === 10000000) {
+        ramPrice.lowestPrice = 0;
+      } else {
+        ramPriceElement.textContent = formatCurrency(ramPrice.lowestPrice);
+        ramPriceElement.href = ramPrice.lowestPriceLink;
+      }
+      allPrice += parseFloat(ramPrice.lowestPrice);
+    }
+    if (stoName != null) {
+      stoPrice = await getData(stoName);
+      if (stoPrice.lowestPrice === 10000000) {
+        stoPrice.lowestPrice = 0;
+      } else {
+        stoPriceElement.textContent = formatCurrency(stoPrice.lowestPrice);
+        stoPriceElement.href = stoPrice.lowestPriceLink;
+      }
+      allPrice += parseFloat(stoPrice.lowestPrice);
+    }
+    if (powName != null) {
+      powPrice = await getData(powName);
+      if (powPrice.lowestPrice === 10000000) {
+        powPrice.lowestPrice = 0;
+      } else {
+        powPriceElement.textContent = formatCurrency(powPrice.lowestPrice);
+        powPriceElement.href = powPrice.lowestPriceLink;
+      }
+      allPrice += parseFloat(powPrice.lowestPrice);
+    }
+    if (gpuName != null) {
+      gpuPrice = await getData(gpuName);
+      if (gpuPrice.lowestPrice === 10000000) {
+        gpuPrice.lowestPrice = 0;
+      } else {
+        gpuPriceElement.textContent = formatCurrency(gpuPrice.lowestPrice);
+        gpuPriceElement.href = gpuPrice.lowestPriceLink;
+      }
+      allPrice += parseFloat(gpuPrice.lowestPrice);
+    }
+
+    allPriceElement.textContent = "총 가격: " + formatCurrency(allPrice);
+  }
+
+  async function getData(searchText) {
+    searchText = changeSearchText(searchText);
+
+    function NaverItem(lowestPrice, lowestPriceLink) {
+      this.lowestPrice = lowestPrice;
+      this.lowestPriceLink = lowestPriceLink;
+    }
+
+    let itemInfo = new NaverItem(10000000, '#');
+
+    try {
+      const response = await axios.get('/search/shop', { params: { query: searchText } });
+      let items = response.data.items;
+      items.forEach(item => {
+        if (item.lprice < itemInfo.lowestPrice) {
+          itemInfo.lowestPrice = item.lprice;
+          itemInfo.lowestPriceLink = item.link;
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+
+    return itemInfo;
+  }
+
+  function formatCurrency(amount) {
+    if (amount === 10000000) {
+      return "오류 발생";
+    }
+    const currency = new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' });
+    return currency.format(amount);
+  }
+
+  function changeSearchText(str) {
+    const words = str.split(' ');
+    return words.slice(0, MAX_NAME_BUNDLE).join(' ');
+  }
+
+  var allEstimateButton = document.getElementById("allEstimateAdd");
+  allEstimateButton.addEventListener("click", function() {
+    var cpuName = /*[[${bbsEstimate.getCpuName()}]]*/;
+    var mbName = /*[[${bbsEstimate.getMainBoard()}]]*/;
+    var ramName = /*[[${bbsEstimate.getRam()}]]*/;
+    var stoName = /*[[${bbsEstimate.getStorage()}]]*/;
+    var powName = /*[[${bbsEstimate.getPower()}]]*/;
+    var gpuName = /*[[${bbsEstimate.getGpu()}]]*/;
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/modal/addEstimate", true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          alert("성공적으로 견적을 저장하였습니다.");
+        } else {
+          alert("견적 저장 중 오류가 발생하였습니다.");
+        }
+      }
+    };
+
+    var params = "cpuName=" + encodeURIComponent(cpuName) +
+                 "&mbName=" + encodeURIComponent(mbName) +
+                 "&ramName=" + encodeURIComponent(ramName) +
+                 "&stoName=" + encodeURIComponent(stoName) +
+                 "&powName=" + encodeURIComponent(powName) +
+                 "&gpuName=" + encodeURIComponent(gpuName);
+
+    xhr.send(params);
+  });
+
+
+
+  calculateAllPrice();
+</script>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

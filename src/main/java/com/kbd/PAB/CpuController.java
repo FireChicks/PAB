@@ -21,7 +21,6 @@ public class CpuController {
     @Autowired
     private CpuService cpuService;
 
-
     @GetMapping
     public List<CpuVO> getAllCpus(@RequestParam(name = "page", defaultValue = "1")int pageNumber) {
         return cpuService.getAllCpus();
@@ -45,6 +44,11 @@ public class CpuController {
     @GetMapping("/socketCategory")
     public List<String> getSocketCategory() {
         return cpuService.getDistinctSocket();
+    }
+
+    @GetMapping("/get")
+    public CpuVO getCpu(@RequestParam(name = "cpuID")int cpuID) {
+        return cpuService.getCpuByID(cpuID);
     }
 
 

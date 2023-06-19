@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Write Comment</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css">
+  <!-- jQuery -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+  <h1>댓글 작성</h1>
+
+  <table class="table">
+    <thead>
+    <tr>
+      <th>카테고리</th>
+      <th>이름</th>
+      <th>이미지</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td th:text="${partsVO.partCategory}"></td>
+      <td th:text="${partsVO.partName}"></td>
+      <td>
+        <img th:src="${partsVO.partImgUrl}" alt="이미지" width="100" height="100">
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <form action="/comment/writeCommentByPart" method="POST">
+    <div class="mb-3">
+      <label for="comment" class="form-label">댓글 내용:</label>
+      <textarea class="form-control" id="comment" name="comContent" rows="5" placeholder="댓글을 입력해주세요" maxlength="500"></textarea>
+    </div>
+    <input type="hidden" name="partID" th:value="${partsVO.partID}">
+    <input type="hidden" name="partCategory" th:value="${partsVO.partCategory}">
+    <input type="hidden" name="partImgUrl" th:value="${partsVO.partImgUrl}">
+    <input type="hidden" name="bbsID" th:value="${bbsID}">
+    <button type="submit" class="btn btn-primary">제출</button>
+  </form>
+  <button type="button" class="btn btn-outline-secondary" id="undoMdBtn" th:bbsID="${bbsID}" onclick="reset(this.getAttribute('bbsID'))">돌아 가기</button>
+</div>
+
+<!-- 추가 코드 -->
+<script>
+var undoMdBtn = document.getElementById('undoMdBtn');
+    undoMdBtn.style.display = 'block';
+
+   function reset(bbsID) {
+  $.ajax({
+    url: "/modal/allPartView",
+    type: "GET",
+    data: { bbsID: bbsID },
+    success: function (data) {
+      $(".modal-body").html(data);
+    },
+    error: function () {
+      $(".modal-body").html("<p>댓글 입력 모달을 불러올 수 없습니다.</p>");
+    },
+  });
+}
+
+
+  // Ajax 요청 결과에 따른 처리
+  $(document).ready(function() {
+    $('form').submit(function(e) {
+      e.preventDefault(); // 기본 제출 동작 방지
+
+      $.ajax({
+        url: $(this).attr('action'),
+        type: $(this).attr('method'),
+        data: $(this).serialize(),
+        success: function(response) {
+          if (response === true) {
+            alert("댓글이 성공적으로 작성되었습니다.");
+            hideComModal();
+          } else {
+            // 처리 실패
+            alert("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
+            window.location.href = "/login"; // 로그인 페이지로 이동할 URL을 설정해주세요
+          }
+        },
+        error: function() {
+          // 에러 처리
+          alert("요청을 처리하는 도중 오류가 발생했습니다.");
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

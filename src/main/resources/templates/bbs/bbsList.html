@@ -10,6 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="/js/bbs/bbs.js"></script>
+    <script src="/js/bbs/modalEstimate.js"></script>
     <link href="/css/bbs.css" rel="stylesheet">
 </head>
 <body>
@@ -25,8 +26,8 @@
                     <tr>
                         <th>이미지</th>
                         <th colspan="2">제목</th>
-                        <th>작성자</th>
-                        <th>수정일</th>
+                        <th></th>
+                        <th>견적</th>
                         <th>조회수</th>
                     </tr>
                     </thead>
@@ -35,8 +36,15 @@
                         <tr>
                             <td class="tg-0pky" rowspan="5">이미지</td>
                             <td class="tg-0lax bbsTitle" th:text="${vo.bbsTitle}" colspan="2">제목</td>
-                            <td class="tg-0lax" th:text="${vo.bbsWriter}">작성자</td>
-                            <td class="tg-0lax" th:text="${vo.updateDate}">수정일</td>
+                            <td class="tg-0lax"><th:block th:if="${vo.bbsWriter} == ${userID}"><button class="btn btn-danger" th:page="${page}" th:pageSize="${pageSize}" th:searchText="${searchText}" th:searchCategory="${searchCategory}" th:bbsID="${vo.bbsID}" th:onclick="deleteBbs(this.getAttribute('page'), this.getAttribute('pageSize'), this.getAttribute('searchText'), this.getAttribute('searchCategory'), this.getAttribute('bbsID'))">삭제</button></th:block> </td>
+                            <td class="tg-0lax">
+                                <!-- Add data-bs-toggle and data-bs-target attributes to trigger the modal -->
+                                <button class="btn btn-primary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#estimateModal"
+                                        th:attr="data-estimate-id=${vo.bbsEstimateID},data-bbs-writer=${vo.bbsWriter}"
+                                        onclick="showModal(this)">견적 확인</button>
+                            </td>
                             <td class="tg-0lax" th:text="${vo.views}">조회수</td>
                         </tr>
                         <tr>
@@ -69,7 +77,7 @@
                         <tr>
                         </tr>
                         <tr th:id="'comment_input_form_' + ${vo.bbsID}" style="display: none;">
-                            <form th:id="'commentForm_' + ${vo.bbsID}">
+                            <form th:id="'commentForm_' + ${vo.bbsID}"  onsubmit="event.preventDefault();">
                                 <input type="hidden" name="bbsID" th:value="${vo.bbsID}" />
                                 <input type="hidden" name="opponentWriter" th:value="${vo.bbsWriter}" />
                                 <td>
@@ -77,21 +85,33 @@
                                 </td>
                                 <td colspan="5">
                                     <div style="display: flex; align-items: end; justify-content: center;">
-                                        <textarea th:id="'comContent_' + ${vo.bbsID}" name="comContent" style="width:92%; height:100%; align-self: flex-end;" placeholder="댓글을 입력해주세요"></textarea>
+                                        <textarea th:id="'comContent_' + ${vo.bbsID}" name="comContent" style="width:78%; height:100%; align-self: flex-end;" placeholder="댓글을 입력해주세요"></textarea>
                                         <button type="submit" class="btn btn-primary" style="align-self: flex-end; width:8%; height:100%;">작성</button>
+                                        <button th:id="'partChkButton_' + ${vo.bbsID}" class="btn btn-success btn-sm" style="width:8%;" th:bbsID="${vo.bbsID}" onclick="openCommentModal(event, this.getAttribute('bbsID'))"><small>부품 조회</small></button>
+                                        <button th:id="'closeButton_' + ${vo.bbsID}" class="btn btn-light btn-sm" style="align-self: flex-end; width:6%; height:100%;">닫기</button>
                                     </div>
                                 </td>
                             </form>
                         </tr>
                         <script th:inline="javascript">
+                            var userID = [[${userID}]];
                             var bbsWriter[[${vo.bbsID}]] = [[${vo.bbsWriter}]];
-                            var bbsID[[${vo.bbsID}]]     = [[${vo.bbsID}]];
+                            var bbsID[[${vo.bbsID}]] = [[${vo.bbsID}]];
                             var imgElement = document.getElementById("userProfileImage_" + bbsID[[${vo.bbsID}]]);
                             getUserProfile(bbsWriter[[${vo.bbsID}]], imgElement);
 
                             var form[[${vo.bbsID}]] = document.getElementById('commentForm_' + bbsID[[${vo.bbsID}]]);
                             var element[[${vo.bbsID}]] = document.getElementById('contents_' + bbsID[[${vo.bbsID}]]);
                             form[[${vo.bbsID}]].addEventListener('submit', (event) => handleSubmit(event, element[[${vo.bbsID}]], bbsID[[${vo.bbsID}]], bbsWriter[[${vo.bbsID}]]));
+                            var closeButton = document.getElementById('closeButton_' + bbsID[[${vo.bbsID}]]);
+
+                            if (closeButton) {
+                              closeButton.addEventListener('click', function() {
+                                event.preventDefault();
+                                restScorollableWindow(element[[${vo.bbsID}]], bbsID[[${vo.bbsID}]]);
+                              });
+                            }
+
                         </script>
                     </th:block>
                     </tbody>
@@ -149,11 +169,172 @@
         </div>
     </div>
 </div>
+
+<!--견적 정보 출력 모달 부분-->
+<div class="modal fade" id="estimateModal" tabindex="-1" role="dialog" aria-labelledby="estimateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img style="width:100px; height:100px;" id="modalWriterProfleImage" alt="Profile Image">
+                <h5 class="modal-title" id="estimateModalLabel">견적 확인</h5>
+                <div id="undoDiv">
+                    <button type="button" class="btn btn-outline-secondary" id="undoBtn">돌아 가기</button>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="hideModal()"></button>
+            </div>
+            <div class="modal-body" id="dynamicContent">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 댓글 입력 모달 -->
+<div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="commentModalLabel">댓글 입력</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script>
-    // select 요소 변경 시 form submit 실행
-    document.getElementById("pageSize").addEventListener("change", function() {
-        document.getElementById("searchForm").submit();
+  // select 요소 변경 시 form submit 실행
+  document.getElementById("pageSize").addEventListener("change", function () {
+    document.getElementById("searchForm").submit();
+  });
+
+  var estimateID;
+
+  function showEstimate() {
+    axios
+      .get("/modal/bbsEstimate", {
+        params: {
+          estimateID: estimateID,
+        },
+      })
+      .then(function (response) {
+        // 성공적인 응답을 받으면 HTML을 동적으로 추가합니다.
+        var dynamicContent = document.getElementById("dynamicContent");
+        dynamicContent.innerHTML = response.data;
+
+        // Evaluate the JavaScript code inside the <script> tag
+        var scripts = dynamicContent.getElementsByTagName("script");
+        var script = scripts[scripts.length - 1];
+        eval(script.innerHTML);
+
+        var undoBtn = document.getElementById("undoBtn");
+        undoBtn.style.display = "none";
+      })
+      .catch(function (error) {
+        console.error("오류가 발생했습니다:", error);
+      });
+  }
+
+  var undoBtn = document.getElementById("undoBtn");
+  undoBtn.addEventListener("click", function () {
+    showEstimate();
+    console.log("버튼이 클릭되었습니다.");
+  });
+
+  function hideModal() {
+    // 모달 창이 닫힐 때 backdrop 요소 제거
+    $("#estimateModal").on("hidden.bs.modal", function () {
+      $(".modal-backdrop").remove();
+      document.body.style.overflow = "auto"; // 스크롤 유지
     });
+  }
+
+  function showModal(button) {
+    estimateID = button.getAttribute("data-estimate-id");
+    var bbsWriter = button.getAttribute("data-bbs-writer");
+    var modalTitle = document.getElementById("estimateModalLabel");
+    var modalProfile = document.getElementById("modalWriterProfleImage");
+
+    getUserProfile(bbsWriter, modalProfile);
+
+    modalTitle.textContent = " " + bbsWriter + " 님의 견적 확인";
+    modalTitle.style.fontWeight = "bold";
+
+    console.log("Estimate ID:", estimateID);
+
+    var modal = document.getElementById("estimateModal");
+
+    showEstimate();
+
+    var modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+    // 견적 ID를 사용한 추가 동작 수행
+  }
+
+  var undoMdBtn = document.getElementById('undoMdBtn');
+    undoMdBtn.style.display = 'none';
+
+  function openCommentModal(event, bbsID) {
+    event.preventDefault(); // 폼의 제출 방지
+
+    // 댓글 입력 모달을 띄우는 코드
+    $("#commentModal").modal("show");
+
+    $("#commentModal").on("shown.bs.modal", function (event) {
+      var modal = $(this);
+      modal.find(".modal-body #bbsIDInput").val(bbsID);
+
+      // 서버로부터 받은 view를 댓글 입력 모달의 내용으로 설정
+      $.ajax({
+        url: "/modal/allPartView?bbsID=" + bbsID,
+        type: "GET",
+        success: function (data) {
+          modal.find(".modal-body").html(data);
+          registerCommentModalButtonHandlers(); // 댓글 입력 버튼 이벤트 핸들러 다시 등록
+        },
+        error: function () {
+          modal
+            .find(".modal-body")
+            .html("<p>댓글 입력 모달을 불러올 수 없습니다.</p>");
+        },
+      });
+    });
+  }
+
+  function hideComModal(){
+    var closeButton = document.querySelector('[data-bs-dismiss="modal"]');
+    closeButton.click();
+  }
+
+  function registerCommentModalButtonHandlers() {
+    var commentModalButtons = document.getElementsByClassName(
+      "commentModalButton"
+    );
+
+    // 모든 댓글 입력 버튼에 대해 이벤트 리스너 등록
+    for (var i = 0; i < commentModalButtons.length; i++) {
+      var button = commentModalButtons[i];
+
+      // 기존에 등록된 이벤트 핸들러 제거
+      button.removeEventListener("click", openCommentModal);
+
+      // 새로운 이벤트 핸들러 등록
+      button.addEventListener("click", function (event) {
+        var bbsID = this.getAttribute("data-bbs-id");
+        openCommentModal(event, bbsID);
+      });
+    }
+  }
+
+
+  // 페이지 로드 후 댓글 입력 버튼 이벤트 핸들러 등록
+  window.addEventListener("DOMContentLoaded", function () {
+    registerCommentModalButtonHandlers();
+  });
 </script>
+
+
+
 </body>
 </html>

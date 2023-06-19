@@ -84,4 +84,8 @@ public class BbsService {
         return pageSize;
     }
 
+    public void deleteBbs(int bbsID) {
+        bbsRepository.deleteById(bbsID);
+    }
+
 }

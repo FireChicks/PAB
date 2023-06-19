@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class GpuService {
@@ -58,5 +59,13 @@ public class GpuService {
             }
         }
         insertCPU(gpuVOS);
+    }
+
+    public GpuVO getGpuByID(int gpuID) {
+        Optional<GpuVO> vo = gpuRepository.findById(gpuID);
+        if(vo.isPresent()) {
+            return vo.get();
+        }
+        return null;
     }
 }

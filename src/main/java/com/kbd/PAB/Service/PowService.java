@@ -2,6 +2,7 @@ package com.kbd.PAB.Service;
 
 import com.kbd.PAB.Crawling.ImgLinkCrawlingService;
 import com.kbd.PAB.Repository.PowRepository;
+import com.kbd.PAB.VO.CpuVO;
 import com.kbd.PAB.VO.PowerVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PowService {
@@ -61,5 +63,13 @@ public class PowService {
             }
         }
         insertCPU(powVOS);
+    }
+
+    public PowerVO getPowerByID(int powID) {
+        Optional<PowerVO> vo = powRepository.findById(powID);
+        if(vo.isPresent()) {
+            return vo.get();
+        }
+        return null;
     }
 }
