@@ -7,6 +7,7 @@
    * 2-1. 견적
    * 2-2. 부품
 3. 게시판
+4. 총정리
 
 ---
  
@@ -69,4 +70,11 @@ private static String scanHardware(String wmicClass, String property) throws Exc
 ![게시판_견적확인_부품확인](https://github.com/FireChicks/PAB/assets/113798364/f24e9e50-feef-4abf-b7cc-fb9967fd3e07)<br>
 물론 견적에 추가되어있는 각 부품의 정보를 확인하는것 또한 가능합니다. 
  
+---
+
+## 4. 총정리 
+매주 진척상황 발표를 위해 제작했던 PPT를 동영상을 제외한 PDF 파일로 만든 파일입니다.
+동영상을 포함한 PPT는 issue에 올려놓았습니다.
+[Uploading 통합본.pdf…]()
+
 ---
